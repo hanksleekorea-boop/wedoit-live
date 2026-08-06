@@ -1,0 +1,563 @@
+{
+  "version": "v26.4.0",
+  "status": "local-candidate",
+  "released": null,
+  "schemaVersion": 6,
+  "generatedAt": "2026-08-06T00:00:00+07:00",
+  "generatedBy": "finalize_v2640.py",
+  "inheritedFrom": "v26.3.0",
+  "firstLoadAssets": [
+    "index.html",
+    "service-v2610.css",
+    "service-v2610.js",
+    "service-v2620.css",
+    "service-v2620.js",
+    "service-v2630.css",
+    "service-v2630.js",
+    "service-v2640.css",
+    "service-v2640.js",
+    "service-v2640-p0.css",
+    "service-v2640-p0.js",
+    "service-v2640-p1-rhythm.css",
+    "service-v2640-p1-rhythm.js",
+    "service-v2640-p1-pause.css",
+    "service-v2640-p1-pause.js",
+    "service-v2640-p1-repeat-days.css",
+    "service-v2640-p1-repeat-days.js",
+    "service-v2640-p1-timezone.css",
+    "service-v2640-p1-timezone.js",
+    "service-v2640-p1-date-correction.css",
+    "service-v2640-p1-date-correction.js",
+    "service-v2640-p1-weekly.css",
+    "service-v2640-p1-weekly.js",
+    "service-v2640-i18n.js",
+    "app-shell-v260a1.js",
+    "core-v260a1.js"
+  ],
+  "lazyAssets": [
+    "dashboard-v260a1.js",
+    "social-v260a2.js",
+    "identity-v260a3.js",
+    "rls-policy-v260a4.js",
+    "backend-emulator-v260a5.js",
+    "authenticated-sync-v260a6.js",
+    "retry-policy-v260a7.js",
+    "circle-lab-v260a8.js"
+  ],
+  "contractAssets": [
+    "backend-schema-v260a4.sql",
+    "backend-config-v260a9.mjs",
+    "remote-rls-probe-v260a9.mjs",
+    "backend.env.example",
+    "README.md",
+    "schema6-deployment-v260a10.mjs",
+    "schema6-readback-v260a10.sql",
+    "SCHEMA6_RUNBOOK.md",
+    "safety-api-v260a11.mjs",
+    "SAFETY_API_RUNBOOK.md",
+    "remote-network-scenarios-v260a12.mjs",
+    "REMOTE_NETWORK_RUNBOOK.md",
+    "android-platform-contract-v260a13.mjs",
+    "AndroidManifest-v260a13.xml",
+    "wedoit_widget_info.xml",
+    "WeDoItAndroidRuntime-v260a13.kt",
+    "ANDROID_NATIVE_RUNBOOK.md",
+    "health-integration-contract-v260a14.mjs",
+    "HEALTH_INTEGRATION_RUNBOOK.md",
+    "remote-stage-orchestrator-v260a15.mjs",
+    "REMOTE_STAGE_RUNBOOK.md",
+    "health-sync-integrity-v260a16.mjs",
+    "HEALTH_SYNC_INTEGRITY_RUNBOOK.md",
+    "remote-safety-probe-v260a17.mjs",
+    "REMOTE_SAFETY_PROBE_RUNBOOK.md"
+  ],
+  "standalonePreview": "preview.html",
+  "totalFirstLoadGzip": 67670,
+  "firstLoadBudget": 110000,
+  "files": {
+    "404.html": {
+      "bytes": 53599,
+      "gzipNodeL9": 15052,
+      "sha256": "6f7eaf18a301bddd8e34e63d86730a59646a502bcb01ffae0b15d6d32ec2d74e"
+    },
+    "ANDROID_NATIVE_RUNBOOK.md": {
+      "bytes": 2733,
+      "gzipNodeL9": 1536,
+      "sha256": "a78a4eb3e60d9c20e9ad1cf970e4c0a70b00efd3eb2d3e3adf104aa5443e606f"
+    },
+    "AndroidManifest-v260a13.xml": {
+      "bytes": 1257,
+      "gzipNodeL9": 540,
+      "sha256": "140973af615f4f98e08935159ff5efb64e02e637c14b8e19189df4092613ca06"
+    },
+    "HEALTH_INTEGRATION_RUNBOOK.md": {
+      "bytes": 2354,
+      "gzipNodeL9": 1278,
+      "sha256": "5c654e153633e93917f081753d605431fd5b7ea243b0c2ca4e83478392a9289c"
+    },
+    "HEALTH_SYNC_INTEGRITY_RUNBOOK.md": {
+      "bytes": 756,
+      "gzipNodeL9": 517,
+      "sha256": "30dd0869a1360ed9bad6ca21a5c2d5df485887ba02bf4fb20cd43a467b3d1f2c"
+    },
+    "README.md": {
+      "bytes": 4248,
+      "gzipNodeL9": 2070,
+      "sha256": "e5107f95f40d90fd80f574f5e1b2b25c848ef6876ec71115d7ed7cb53ac2b35a"
+    },
+    "REMOTE_NETWORK_RUNBOOK.md": {
+      "bytes": 1409,
+      "gzipNodeL9": 919,
+      "sha256": "00f24ac71c1221bc0ab28c18fe08dcc109ca235db0588cdda4a3c8706e9a47c9"
+    },
+    "REMOTE_SAFETY_PROBE_RUNBOOK.md": {
+      "bytes": 879,
+      "gzipNodeL9": 660,
+      "sha256": "c065df58a73305bcc4f01de4f1cc88f4b0585692845bf56e4501031a3e8c56a3"
+    },
+    "REMOTE_STAGE_RUNBOOK.md": {
+      "bytes": 930,
+      "gzipNodeL9": 649,
+      "sha256": "4bbc1d4a687184dc983d8fdeeae844b390ecb268bf828d40d0f47cdbe6c78a57"
+    },
+    "SAFETY_API_RUNBOOK.md": {
+      "bytes": 1594,
+      "gzipNodeL9": 947,
+      "sha256": "628d45ae21ea698866505238de13ad1ced55f0690562b298b8885fbcfcad4e52"
+    },
+    "SCHEMA6_RUNBOOK.md": {
+      "bytes": 1592,
+      "gzipNodeL9": 977,
+      "sha256": "cbd2951768f552649ac160ab2ad29abf7640145f69b857eba3d0226d7859a591"
+    },
+    "WeDoItAndroidRuntime-v260a13.kt": {
+      "bytes": 2940,
+      "gzipNodeL9": 1197,
+      "sha256": "9f54b805ceb9f74f15dbe7b2c005a5d75b1a14ece9e1371d22d21994157be194"
+    },
+    "android-platform-contract-v260a13.mjs": {
+      "bytes": 10494,
+      "gzipNodeL9": 3182,
+      "sha256": "9c56f7787505a2a565b0f864d5e96b70bf9bb10a99d24213712df77367ff382c"
+    },
+    "app-shell-v260a1.js": {
+      "bytes": 1972,
+      "gzipNodeL9": 1148,
+      "sha256": "a78245bac56e141dd1be19389e620ba11c8d47f81df4f37528495685dcc71a13"
+    },
+    "authenticated-sync-v260a6.js": {
+      "bytes": 3457,
+      "gzipNodeL9": 1523,
+      "sha256": "de09b1a0cc4b6f810358b75165a0e047095bd93ec93d2e2fbb591872aa264826"
+    },
+    "backend-config-v260a9.mjs": {
+      "bytes": 3109,
+      "gzipNodeL9": 1174,
+      "sha256": "b9e2ec9e8d2e9b9b8f396e50c1bec47a685dc69a2f7efce2f93bc08ae7f4e3ff"
+    },
+    "backend-emulator-v260a5.js": {
+      "bytes": 4881,
+      "gzipNodeL9": 1890,
+      "sha256": "96ff6eeea6ee353bac0e4c629868e595fec2df5469a0e0bbbadbf0a9e133421c"
+    },
+    "backend-schema-v260a4.sql": {
+      "bytes": 7418,
+      "gzipNodeL9": 1331,
+      "sha256": "832daeb8bb1c01a34e3bfdfd97ca82c85b561a907563e417712c38c4703e071c"
+    },
+    "backend.env.example": {
+      "bytes": 564,
+      "gzipNodeL9": 383,
+      "sha256": "6096142a392b2cbaa52e5451ff72fe361a04ae7239b7b7022c85fda2cc8fe9b9"
+    },
+    "circle-lab-v260a8.js": {
+      "bytes": 6378,
+      "gzipNodeL9": 2514,
+      "sha256": "4cc77f253d02e2689bc9f8485c9ba3e92feb2d4d4a33dc0b8ca0c1b6d7c9c831"
+    },
+    "core-v260a1.js": {
+      "bytes": 11367,
+      "gzipNodeL9": 4481,
+      "sha256": "d3165520f4a214408399cf9addf0b7de443ebb4f4baa916c1dd5b68323fe1efc"
+    },
+    "dashboard-v260a1.js": {
+      "bytes": 31055,
+      "gzipNodeL9": 10321,
+      "sha256": "fc347d4dd5a8383bb4c1ea741299c18ce490484a704e7159e2486983cc5d6ac9"
+    },
+    "health-integration-contract-v260a14.mjs": {
+      "bytes": 9074,
+      "gzipNodeL9": 2826,
+      "sha256": "ec859cfc39296c049b45d43f722aa29c5c2b886508dc8879f6a1c55f34404d2b"
+    },
+    "health-sync-integrity-v260a16.mjs": {
+      "bytes": 4891,
+      "gzipNodeL9": 1866,
+      "sha256": "31028c0c421460551ba8fce766c0b2e4b004a8e8ce0a6bad46c3c455c263fd85"
+    },
+    "identity-v260a3.js": {
+      "bytes": 6116,
+      "gzipNodeL9": 2416,
+      "sha256": "f369e903e0f36ad7e5857a78ed1229404e069f4ca414396adec2689ed767f7f3"
+    },
+    "index.html": {
+      "bytes": 53599,
+      "gzipNodeL9": 15052,
+      "sha256": "6f7eaf18a301bddd8e34e63d86730a59646a502bcb01ffae0b15d6d32ec2d74e"
+    },
+    "preview.html": {
+      "bytes": 214575,
+      "gzipNodeL9": 52147,
+      "sha256": "dab315f92759ab9dba646d784ce795ff8a2a08069563f2ff87831a9042272362"
+    },
+    "qr.png": {
+      "bytes": 8295,
+      "gzipNodeL9": 2462,
+      "sha256": "8f2110afffcbe731e3846dae71d1327031b4d3599180f7d79643cb4854922b9e"
+    },
+    "remote-network-scenarios-v260a12.mjs": {
+      "bytes": 8403,
+      "gzipNodeL9": 2782,
+      "sha256": "0464a9a1a7fe7e55cd085111a3b3e7cfc78a6f965c5caa9c42a4fb778b0c665a"
+    },
+    "remote-rls-probe-v260a9.mjs": {
+      "bytes": 3695,
+      "gzipNodeL9": 1270,
+      "sha256": "afd06e3cc8d02451dcf6747a632b5336e50bf5f500d3e1e6ce7c04e4ae644ab9"
+    },
+    "remote-safety-probe-v260a17.mjs": {
+      "bytes": 3735,
+      "gzipNodeL9": 1315,
+      "sha256": "83dba45cb79397acce26c70c58385a974d9d1ea34d9ca2676dd492d2373c8438"
+    },
+    "remote-stage-orchestrator-v260a15.mjs": {
+      "bytes": 5957,
+      "gzipNodeL9": 1970,
+      "sha256": "99f25bab2b25d45e04ffcd4760548062b766f6d6e3aa9a23e76ed3d767c10546"
+    },
+    "retry-policy-v260a7.js": {
+      "bytes": 4884,
+      "gzipNodeL9": 1869,
+      "sha256": "9411a965cc2100edd568423d8bd3c95ddeb5eaeb9e3a54e37b8ed5a7ab369106"
+    },
+    "rls-policy-v260a4.js": {
+      "bytes": 3642,
+      "gzipNodeL9": 1116,
+      "sha256": "07e773b439fb0958a6e9d34e2c051f206792a975d05a8dba682b027b9ec8a4f3"
+    },
+    "safety-api-v260a11.mjs": {
+      "bytes": 5528,
+      "gzipNodeL9": 1851,
+      "sha256": "8083265e20551c108ad88ca2df3993dd37136764c0df4457bb11740e7c8180c6"
+    },
+    "schema6-deployment-v260a10.mjs": {
+      "bytes": 5739,
+      "gzipNodeL9": 2020,
+      "sha256": "f5c52a34c07e066fc47b56eff2aa019137db693bd0b35fef5dd0437e77cc0d76"
+    },
+    "schema6-readback-v260a10.sql": {
+      "bytes": 2484,
+      "gzipNodeL9": 655,
+      "sha256": "ba845cb74e9120a322134006b09b4319b2113cd068ca3c47fce641efcda6fc4a"
+    },
+    "service-v2610.css": {
+      "bytes": 17344,
+      "gzipNodeL9": 4647,
+      "sha256": "8e397d044503fd3d9e7032e8f2a031817f13be80cbc4a83e9cae6457681c9d7d"
+    },
+    "service-v2610.js": {
+      "bytes": 10525,
+      "gzipNodeL9": 4229,
+      "sha256": "7d3b2baf354a1f70fe01646d1db9fab682cf60f84e35cd2b4155d0b2a84627dc"
+    },
+    "service-v2620.css": {
+      "bytes": 5672,
+      "gzipNodeL9": 1699,
+      "sha256": "10ffbc7c76efc7bf4f2e2813f392b1e2b608d0b287b45d81d39a5830a870a5be"
+    },
+    "service-v2620.js": {
+      "bytes": 8995,
+      "gzipNodeL9": 3644,
+      "sha256": "7b484235b79a0532c58691d665da537be0932d38533e6c5dddacdc902620e1a1"
+    },
+    "service-v2630.css": {
+      "bytes": 2850,
+      "gzipNodeL9": 903,
+      "sha256": "2eea7d7ddc132de22798edb194f70837525cb18ca0ce333bdd1dd5872c124253"
+    },
+    "service-v2630.js": {
+      "bytes": 6567,
+      "gzipNodeL9": 2909,
+      "sha256": "851b19fc2f61d05285153dc01b1c42e36755f74c4b3a62351ea96629adef6dc0"
+    },
+    "service-v2640-i18n.js": {
+      "bytes": 9291,
+      "gzipNodeL9": 4247,
+      "sha256": "b3b19eac6dd0081b6387962bb2fb1d9ba9138ada740100ea9d68a5213a89f898"
+    },
+    "service-v2640-p0.css": {
+      "bytes": 2460,
+      "gzipNodeL9": 877,
+      "sha256": "2c61b7b53dfc41559d4a84059bcee3999ef017d72293d6c5a6ad78fd37139947"
+    },
+    "service-v2640-p0.js": {
+      "bytes": 6385,
+      "gzipNodeL9": 2611,
+      "sha256": "959de156bd611a53d579d114e17edfffd2db0238ca8d73563332414312d840a3"
+    },
+    "service-v2640-p1-date-correction.css": {
+      "bytes": 2364,
+      "gzipNodeL9": 726,
+      "sha256": "65435552a41331027b647533e98e9703e9a6a64067a6f1b96df43319d36b49e6"
+    },
+    "service-v2640-p1-date-correction.js": {
+      "bytes": 6817,
+      "gzipNodeL9": 2740,
+      "sha256": "6653b1e70c911f6230fa8899e9b44d090181c7a83520d4bd9aa4c35abe5e4ba3"
+    },
+    "service-v2640-p1-pause.css": {
+      "bytes": 1332,
+      "gzipNodeL9": 560,
+      "sha256": "49ffb783d9fa6f7f58b1637cd49042ddfc105820cda968b5c82839d3aa352f51"
+    },
+    "service-v2640-p1-pause.js": {
+      "bytes": 4487,
+      "gzipNodeL9": 2022,
+      "sha256": "7a3e61c135eb7fffdc96fc1523180ba6d43ae9bf44d2eb82027dbc57a4e8adc9"
+    },
+    "service-v2640-p1-repeat-days.css": {
+      "bytes": 1585,
+      "gzipNodeL9": 632,
+      "sha256": "7c9f5cf9fcc331e5b68e5eeee63c8fa6beb48ab9c273e3512eaf4b139ddaa172"
+    },
+    "service-v2640-p1-repeat-days.js": {
+      "bytes": 5279,
+      "gzipNodeL9": 2325,
+      "sha256": "1c1dc934d0a818c2580dbd1f54d2b5f2e2a4f18781600754af102bcbf25ecc9a"
+    },
+    "service-v2640-p1-rhythm.css": {
+      "bytes": 1509,
+      "gzipNodeL9": 584,
+      "sha256": "d3aab0087a93c74092273c21a5b0b7825a53aec94f94c9126fcc01493a74eb1a"
+    },
+    "service-v2640-p1-rhythm.js": {
+      "bytes": 5117,
+      "gzipNodeL9": 2307,
+      "sha256": "04ef9fb75e8ba67c28a35dd40577e085a12fd96f1f0145e3befd31ac4e5bd996"
+    },
+    "service-v2640-p1-timezone.css": {
+      "bytes": 1341,
+      "gzipNodeL9": 553,
+      "sha256": "7c372377cdfedc5283b54df4cd82735c11ae56323d69a14a46589f8560f829ac"
+    },
+    "service-v2640-p1-timezone.js": {
+      "bytes": 3964,
+      "gzipNodeL9": 1911,
+      "sha256": "b48de22e2048bf4ab9de77debd3faa62e590ca94e988a82d46af81eca48009cf"
+    },
+    "service-v2640-p1-weekly.css": {
+      "bytes": 1997,
+      "gzipNodeL9": 754,
+      "sha256": "92dab4ca2bb6f42e1efc1c8a58030f332d289b1c1cfd5e306a536d65fe6a948f"
+    },
+    "service-v2640-p1-weekly.js": {
+      "bytes": 4473,
+      "gzipNodeL9": 2058,
+      "sha256": "46cf818c57be00e716164075ed60aa765fe2692772e3380ae76c7154c2fd864e"
+    },
+    "service-v2640.css": {
+      "bytes": 3150,
+      "gzipNodeL9": 1070,
+      "sha256": "5b01e83e5c2b2acbde34c5bab32f24531db95a6c10a301f57b3a77e163f062ff"
+    },
+    "service-v2640.js": {
+      "bytes": 8070,
+      "gzipNodeL9": 2981,
+      "sha256": "180e6ad07ce2442dfcb9fdff6f59d6dceb927f1968c2a3d9e95b9d1fb374ac65"
+    },
+    "social-v260a2.js": {
+      "bytes": 4772,
+      "gzipNodeL9": 2007,
+      "sha256": "2ea807c2c3aa3464930f20d26d6ead601a229c6682527e01aad786922bc37df7"
+    },
+    "sw.js": {
+      "bytes": 2192,
+      "gzipNodeL9": 879,
+      "sha256": "e923b3d45126c4d26e52886ba1b86fd6a3e51d5d509725396bd24080832eca89"
+    },
+    "wedoit_widget_info.xml": {
+      "bytes": 367,
+      "gzipNodeL9": 245,
+      "sha256": "5707b9e55d8ff753864dc84b79987b5c880bcfcdb76a23c9dfc47f4ce32622ec"
+    }
+  },
+  "rollback": {
+    "version": "v26.3.0",
+    "path": "20_SRC/v26.3.0_candidate",
+    "indexSha256": "ced644eac4410951941b2990952d84988f54649ab282ba510003203152a776e3"
+  },
+  "publicBaseline": {
+    "version": "v26.2.0",
+    "path": "30_DEPLOY/v26-2",
+    "indexSha256": "d7f3988471f4493dbc15cb70c84b09348d0db53870a40358a385c30a79d328ed"
+  },
+  "evidence": {
+    "I": true,
+    "L": true,
+    "B": true,
+    "K": false,
+    "P": false,
+    "D": "UNKNOWN",
+    "U": 0
+  },
+  "boundary": {
+    "actualDatabase": false,
+    "actualBackend": false,
+    "remoteAccount": false,
+    "actualModerationDelivery": false,
+    "remoteNetworkContract": false,
+    "automaticRollback": false,
+    "automaticNetwork": false,
+    "androidNativeBuild": false,
+    "androidEmulator": false,
+    "androidPhysicalDevice": false,
+    "androidNotificationDelivered": false,
+    "androidWidgetRendered": false,
+    "androidRebootRecovered": false,
+    "webIsNativeEvidence": false,
+    "actualHealthConnect": false,
+    "actualWearHealthServices": false,
+    "actualHealthKit": false,
+    "healthPhysicalDevice": false,
+    "automaticHealthSync": false,
+    "healthToSocial": false,
+    "medicalAdvice": false,
+    "remoteStageAutomaticChain": false,
+    "remoteStageExecuted": false,
+    "actualHealthSync": false,
+    "automaticHealthDelete": false,
+    "crossSourceAutoMerge": false,
+    "actualSafetyDelivery": false,
+    "dedicatedSafetyFixtureOnly": true,
+    "automaticSafetyNetwork": false
+  },
+  "pc": {
+    "strategy": "A-responsive-single-html",
+    "breakpoint": 1024,
+    "estimate": {
+      "rawBytes": 5200,
+      "gzipBytes": 2000,
+      "logicToString": "1:1"
+    },
+    "actual": {
+      "rawBytes": 5639,
+      "firstLoadGzipBytes": 1921,
+      "pc2RawBytes": 5849,
+      "pc2FirstLoadGzipBytes": 1564,
+      "pc3RawBytes": 2860,
+      "pc3FirstLoadGzipBytes": 695,
+      "qrBytes": 2006,
+      "totalDesktopIncrementBytes": 6186
+    },
+    "train": {
+      "pc1": "complete",
+      "pc2": "complete",
+      "pc3": "complete"
+    },
+    "mobileContract": "unchanged-below-1024",
+    "handoff": {
+      "target": "https://hanksleekorea-boop.github.io/omnicounter/v26-3/",
+      "qrSha256": "8f2110afffcbe731e3846dae71d1327031b4d3599180f7d79643cb4854922b9e",
+      "shortcutHelp": "reachable"
+    }
+  },
+  "serviceDesign": {
+    "strategy": "portal-grade-action-first-progressive-disclosure",
+    "qualityTarget": "mature-consumer-portal",
+    "referenceSet": 10,
+    "navigation": [
+      "today",
+      "goals",
+      "together",
+      "insights",
+      "me"
+    ],
+    "starterActions": 3,
+    "diagnostics": "collapsed-under-me",
+    "iconSystem": "inline-monoline-svg",
+    "estimate": {
+      "rawBytes": 18000,
+      "gzipBytes": 6000,
+      "logicToString": "1:1"
+    },
+    "actual": {
+      "rawBytes": 10148,
+      "gzipBytes": 4011
+    },
+    "mobileMinimumWidth": 320,
+    "desktopBreakpoint": 1024,
+    "status": "candidate"
+  },
+  "rhythmOrbit": {
+    "status": "candidate",
+    "maxActions": 5,
+    "windowDays": 14,
+    "returnAfterDays": 3,
+    "progressiveReveal": {
+      "firstVisit": 3,
+      "oneActiveDay": "touched-plus-2-up-to-5",
+      "threeActiveDays": 8,
+      "sevenActiveDays": "context-copy"
+    },
+    "scoring": "none",
+    "schemaVersion": 6
+  },
+  "evidenceInsights": {
+    "status": "candidate",
+    "windowDays": 7,
+    "minimumActiveDays": 3,
+    "fullActiveDays": 7,
+    "claimsFromLocalEventsOnly": true,
+    "emptyDayInference": false
+  },
+  "rhythmEditing": {
+    "status": "candidate",
+    "slots": [
+      "morning",
+      "now",
+      "evening"
+    ],
+    "todayHide": true,
+    "storage": "separate-local-preference",
+    "schemaVersion": 6
+  },
+  "p0TrustFoundation": {
+    "status": "candidate",
+    "implementedRanks": [
+      1,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "partialRanks": [],
+    "remainingP0Ranks": [],
+    "storage": "separate-local-preference",
+    "serverSyncAdded": false,
+    "bypassTools": false
+  }
+}
