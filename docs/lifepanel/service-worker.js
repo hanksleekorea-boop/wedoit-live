@@ -10,6 +10,7 @@ const APP_SHELL = [
   "./privacy.html",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
+  "./assets/lifepanel-public-qr.png",
   "../lifepanel-core/lifepanel-contract-v1.mjs",
   "../lifepanel-core/lifepanel-transfer-v1.mjs",
   "../lifepanel-core/lifepanel-workflows-v1.mjs",
