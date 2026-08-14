@@ -1,5 +1,5 @@
 // 새 화면 파일을 설치형 웹 앱 사용자에게도 받게 하려면, 화면 변경 때 이 판번호를 올립니다.
-const CACHE_NAME = "lifepanel-public-v1";
+const CACHE_NAME = "lifepanel-public-v3-web-checkout-preflight";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,12 +8,17 @@ const APP_SHELL = [
   "./workflows-ui.mjs",
   "./manifest.webmanifest",
   "./privacy.html",
+  "./pricing.html",
+  "./commerce-ui.mjs",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/lifepanel-public-qr.png",
   "../lifepanel-core/lifepanel-contract-v1.mjs",
   "../lifepanel-core/lifepanel-transfer-v1.mjs",
   "../lifepanel-core/lifepanel-workflows-v1.mjs",
+  "../lifepanel-core/lifepanel-commerce-v1.mjs",
+  "../lifepanel-core/lifepanel-commerce-provider-v1.mjs",
+  "../lifepanel-core/lifepanel-web-checkout-readiness-v1.mjs",
 ];
 
 self.addEventListener("install", (event) => {
