@@ -24,15 +24,18 @@ import {
   createLifePanelTransferBundle,
   restoreLifePanelTransferBundle,
 } from "../lifepanel-core/lifepanel-transfer-v1.mjs";
+import { FREE_MOVES } from "../lifepanel-core/lifepanel-free-content-v1.mjs";
+import { LIFEPANEL_LAST_EXPORT_KEY } from "../lifepanel-core/lifepanel-data-control-v1.mjs";
+import { initFreeContentUI } from "./free-content-ui.mjs";
 import { initWorkflowPanels } from "./workflows-ui.mjs";
+import { initAdvancedUI } from "./advanced-ui.mjs";
 
-const moves = [
-  createMove({ domainId: "recovery", title: "물 한 잔 마시기", minutes: 1, energyCost: 1, reason: "짧은 회복부터 시작해도 충분합니다." }),
-  createMove({ domainId: "health", title: "창문 쪽으로 3분 걷기", minutes: 3, energyCost: 2, reason: "몸의 신호를 가볍게 바꿔 봅니다." }),
-  createMove({ domainId: "work", title: "가장 작은 일 한 줄 적기", minutes: 5, energyCost: 2, reason: "다음 행동을 작게 만들면 시작하기 쉽습니다." }),
-  createMove({ domainId: "home", title: "책상 위 한 곳 비우기", minutes: 5, energyCost: 3, reason: "눈앞의 부담을 조금 줄여 봅니다." }),
-  createMove({ domainId: "learning", title: "배울 것 한 문장 고르기", minutes: 8, energyCost: 3, when: "today", reason: "오늘의 방향을 다시 확인합니다." }),
-];
+const moves = FREE_MOVES.map((content) => Object.freeze({
+  ...createMove(content),
+  catalogId: content.id,
+  alternative: content.alternative,
+  safety: content.safety,
+}));
 
 const boundaries = [
   createBoundary({ id: "private-screen", kind: "privacy", label: "잠금 화면 기본 숨김", state: "guarded" }),
@@ -96,6 +99,8 @@ const profileStorageKey = "lifepanel.alpha.profile";
 const moveChoiceStorageKey = "lifepanel.alpha.move-choices.v1";
 let sourceUpdatedAt = new Date().toISOString();
 let suggestionsEnabled = localStorage.getItem("lifepanel.alpha.suggestions") !== "off";
+let selectedScenarioFirstActionId = "work-write-one-line";
+let freeContentUI;
 const purposeCopy = {
   balance: { title: "오늘은 삶의 균형을 가볍게 되찾습니다.", label: "직접 고른 균형 목적" },
   focus: { title: "오늘은 가장 중요한 한 가지에 집중합니다.", label: "직접 고른 집중 목적" },
@@ -206,14 +211,24 @@ function legacyMoves() {
 }
 
 function currentMoves() {
-  return generateNextMoves({
-    moves: [...moves, ...legacyMoves()].map((move) => adjustedMoveById.get(move.id) || move),
+  const sourceMoves = [...moves, ...legacyMoves()].map((move) => adjustedMoveById.get(move.id) || move);
+  const generated = generateNextMoves({
+    moves: sourceMoves,
     checkIn: latestCheckIn,
     directionDomainIds: directionDomains[profile.purposeId],
     boundaries,
     limit: 3,
   })
     .filter((move) => !dismissedMoveIds.has(move.id));
+  const preferredSource = sourceMoves.find((move) => move.catalogId === selectedScenarioFirstActionId && !dismissedMoveIds.has(move.id));
+  const [preferred] = preferredSource ? generateNextMoves({
+    moves: [preferredSource],
+    checkIn: latestCheckIn,
+    directionDomainIds: directionDomains[profile.purposeId],
+    boundaries,
+    limit: 1,
+  }) : [];
+  return [preferred, ...generated].filter((move, index, rows) => move && rows.findIndex((row) => row?.id === move.id) === index).slice(0, 3);
 }
 
 function renderLegacyContinuity() {
@@ -347,7 +362,7 @@ function renderMoves() {
       sourceLabel: `에너지 ${latestCheckIn.energy}·부담 ${latestCheckIn.load}·기분 ${mood.options[mood.selectedIndex].text}, ${purposeCopy[profile.purposeId].label}`,
       sourceUpdatedAt,
       uncertainty: "현재 직접 입력한 상태만 사용하므로 실제 시간·환경과 다를 수 있습니다.",
-      alternative: "이 행동을 더 작게 줄이거나, 미루기·휴식·도움 요청을 선택할 수 있습니다.",
+      alternative: move.alternative || "이 행동을 더 작게 줄이거나, 미루기·휴식·도움 요청을 선택할 수 있습니다.",
       suggestionsEnabled,
     });
     const item = document.createElement("li");
@@ -412,6 +427,7 @@ function renderMoves() {
         dismissedMoveIds.add(record.moveId);
       }
       doneMessage.textContent = `${record.message} ${saved ? "이 선택은 기기 안에만 기록했습니다." : "선택은 반영했지만 기기 안 기록은 저장하지 못했습니다."}`;
+      freeContentUI?.showReflection({ moveTitle: move.title, choice: record.choice });
       renderMoves();
     });
     const dismissButton = document.createElement("button");
@@ -573,6 +589,10 @@ exportLifePanel.addEventListener("click", async () => {
     link.download = `lifepanel-${bundle.version}-${bundle.exportedAt.slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
+    try {
+      localStorage.setItem(LIFEPANEL_LAST_EXPORT_KEY, JSON.stringify({ exportedAt: bundle.exportedAt, version: bundle.version, sha256Prefix: bundle.payloadSha256.slice(0, 12) }));
+    } catch { /* download remains valid even when status storage is unavailable */ }
+    window.dispatchEvent(new CustomEvent("lifepanel:backup-created"));
     transferStatus.textContent = `${bundle.version} 사본을 만들었습니다. SHA-256 ${bundle.payloadSha256.slice(0, 12)}…`;
   } catch {
     transferStatus.textContent = "사본을 만들지 못했습니다. 기기 안의 기존 자료는 바뀌지 않았습니다.";
@@ -654,6 +674,7 @@ document.querySelector("#desktop-jump-now").addEventListener("click", () => focu
 document.querySelector("#desktop-jump-weekly").addEventListener("click", () => focusPanel("#weekly-surface"));
 document.querySelector("#desktop-open-transfer").addEventListener("click", () => focusPanel("#transfer-card"));
 document.querySelector("#desktop-export").addEventListener("click", () => exportLifePanel.click());
+document.querySelector("#data-export-lifepanel").addEventListener("click", () => exportLifePanel.click());
 document.querySelector("#desktop-readiness-check").addEventListener("click", refreshDesktopReadiness);
 document.querySelector("#desktop-open-shortcuts").addEventListener("click", () => desktopShortcuts.showModal());
 document.querySelector("#desktop-close-shortcuts").addEventListener("click", () => desktopShortcuts.close());
@@ -684,5 +705,22 @@ renderMoves();
 renderSafetyGuidance();
 prepareOfflineCopy();
 initWorkflowPanels();
+initAdvancedUI();
+freeContentUI = initFreeContentUI({
+  onScenarioSelect(scenario, { initial = false } = {}) {
+    selectedScenarioFirstActionId = scenario.firstActionId;
+    profile = createStarterProfile({ ...profile, purposeId: scenario.purposeId });
+    starterPurpose.value = profile.purposeId;
+    dismissedMoveIds.clear();
+    sourceUpdatedAt = new Date().toISOString();
+    renderTodayContext();
+    renderMoves();
+    if (!initial) focusPanel("#move-title");
+  },
+  onReset() {
+    doneMessage.textContent = "LifePanel 전용 자료를 지웠습니다. 기존 WeDoIt 원본은 유지했습니다. 화면을 새 상태로 다시 엽니다.";
+    window.setTimeout(() => window.location.reload(), 700);
+  },
+});
 refreshDesktopReadiness();
 refreshMobileReadiness();

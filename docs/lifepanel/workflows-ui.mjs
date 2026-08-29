@@ -17,6 +17,7 @@ import {
   transitionFocusSession,
   updatePermissionControl,
 } from "../lifepanel-core/lifepanel-workflows-v1.mjs";
+import { WEEKLY_STORY_PATTERNS } from "../lifepanel-core/lifepanel-free-content-v1.mjs";
 
 const captureKey = "lifepanel.alpha.inbox.v1";
 const sessionKey = "lifepanel.alpha.session.v1";
@@ -201,6 +202,7 @@ export function initWorkflowPanels() {
   query("#week-minutes").textContent = `${week.minutes}분`;
   query("#week-energy").textContent = String(week.energySpent);
   query("#week-results").textContent = `${week.completed}/${week.total}`;
+  query("#weekly-story").textContent = `최근 7일 · 표본 ${week.total}개 · ${WEEKLY_STORY_PATTERNS[0].template.replace("{count}", String(week.completed))} 끝내지 않은 선택에도 벌점은 없습니다.`;
   const weeklyStatus = query("#weekly-status");
   const applyWeek = query("#apply-week");
   let weeklyPreview = null;
