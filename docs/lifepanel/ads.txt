@@ -1,0 +1,2 @@
+# LifePanel has no authorized digital advertising seller until a real AdSense publisher ID is approved.
+# Do not add placeholder or example publisher IDs.
