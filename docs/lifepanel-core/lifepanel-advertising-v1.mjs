@@ -88,9 +88,11 @@ export function getAdvertisingReadiness(config = {}, origin = "https://example.i
     noSensitiveTargeting: true,
     consentReversible: true,
     appWorksWithoutAds: true,
-    publicPublisherId: validation.enabled && !validation.errors.includes("valid public publisher id is required"),
-    certifiedCmp: validation.enabled && config.googleCertifiedCmp === true,
+    publicPublisherId: PUBLISHER_ID.test(String(config.publisherId || "")),
+    publicAdUnit: SLOT_ID.test(String(config.slots?.resourceLibrary || "")),
+    certifiedCmp: config.googleCertifiedCmp === true,
     liveProviderApproved: config.siteApproved === true,
+    runtimeEnabled: validation.enabled && validation.ok,
   });
   const passed = Object.values(gates).filter(Boolean).length;
   return freezeResult({ version: LIFEPANEL_ADVERTISING_VERSION, gates, passed, total: Object.keys(gates).length, percent: Math.round((passed / Object.keys(gates).length) * 100), liveAdsReady: Object.values(gates).every(Boolean) });
