@@ -30,7 +30,7 @@ import { initFreeContentUI } from "./free-content-ui.mjs";
 import { initWorkflowPanels } from "./workflows-ui.mjs";
 import { initAdvancedUI } from "./advanced-ui.mjs";
 import { initPlusUI } from "./plus-ui.mjs";
-import { initAdsUI } from "./ads-ui.mjs";
+import { initAdsUI } from "./ads-ui.mjs?v=17";
 
 const moves = FREE_MOVES.map((content) => Object.freeze({
   ...createMove(content),
