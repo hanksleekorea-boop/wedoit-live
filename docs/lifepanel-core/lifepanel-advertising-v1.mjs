@@ -61,12 +61,13 @@ export function validateAdvertisingConfig(config = {}, origin = "https://example
   });
 }
 
-export function createAdRuntimePlan({ config = {}, consent, origin, surface = "resource-library", context = "general" } = {}) {
+export function createAdRuntimePlan({ config = {}, consent, origin, surface = "resource-library", context = "general", globalPrivacyControl = false } = {}) {
   const validation = validateAdvertisingConfig(config, origin);
   const safeConsent = createAdConsent(consent?.mode || "off", consent?.updatedAt || new Date().toISOString());
   const blockers = [];
   if (!validation.ok || !validation.enabled) blockers.push(validation.state);
   if (safeConsent.mode !== "limited") blockers.push("user-disabled");
+  if (globalPrivacyControl === true) blockers.push("global-privacy-control");
   if (!SAFE_SURFACES.has(surface)) blockers.push("surface-not-allowed");
   if (BLOCKED_CONTEXT.test(String(context))) blockers.push("sensitive-context");
   return freezeResult({
@@ -77,6 +78,7 @@ export function createAdRuntimePlan({ config = {}, consent, origin, surface = "r
     personalizedAds: false,
     usesLifePanelProfile: false,
     usesHealthFinanceRelationshipData: false,
+    globalPrivacyControl: globalPrivacyControl === true,
     surface,
   });
 }

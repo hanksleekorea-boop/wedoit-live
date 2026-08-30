@@ -178,4 +178,8 @@ html, body, .shell { max-width: 100%; overflow-wrap: anywhere; }
 .ad-slot { min-height: 96px; display: grid; place-items: center; margin-top: 14px; padding: 14px; border: 1px dashed #aabbb5; border-radius: 12px; color: #52645b; background: #f5f7f6; text-align: center; overflow: hidden; }
 .ad-slot[data-ad-state="ready"] { border-style: solid; background: #fff; }
 .ad-slot .adsbygoogle { width: 100%; min-height: 90px; }
+.resource-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 18px; }
+.resource-grid .card { min-width: 0; margin: 0; }
+.resource-grid li { margin-bottom: 8px; }
+@media (max-width: 640px) { .resource-grid { grid-template-columns: 1fr; } }
 @media (max-width: 420px) { .sponsor-card { padding: 16px; } .ad-choice-row { display: grid; grid-template-columns: 1fr; } }

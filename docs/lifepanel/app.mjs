@@ -30,7 +30,6 @@ import { initFreeContentUI } from "./free-content-ui.mjs";
 import { initWorkflowPanels } from "./workflows-ui.mjs";
 import { initAdvancedUI } from "./advanced-ui.mjs";
 import { initPlusUI } from "./plus-ui.mjs";
-import { initAdsUI } from "./ads-ui.mjs?v=18";
 
 const moves = FREE_MOVES.map((content) => Object.freeze({
   ...createMove(content),
@@ -709,7 +708,6 @@ prepareOfflineCopy();
 initWorkflowPanels();
 initAdvancedUI();
 initPlusUI();
-initAdsUI();
 freeContentUI = initFreeContentUI({
   onScenarioSelect(scenario, { initial = false } = {}) {
     selectedScenarioFirstActionId = scenario.firstActionId;

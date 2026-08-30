@@ -5,7 +5,7 @@ import {
   LIFEPANEL_AD_CONSENT_KEY,
   readAdConsent,
   saveAdConsent,
-} from "../lifepanel-core/lifepanel-advertising-v1.mjs?v=18";
+} from "../lifepanel-core/lifepanel-advertising-v1.mjs?v=19";
 
 function setText(selector, text) {
   const element = document.querySelector(selector);
@@ -32,9 +32,12 @@ function loadGoogleAd(config, plan) {
 
 function render(config, consent) {
   const origin = location.origin;
+  const globalPrivacyControl = navigator.globalPrivacyControl === true;
   const readiness = getAdvertisingReadiness(config, origin);
-  const plan = createAdRuntimePlan({ config, consent, origin, surface: "resource-library", context: "general" });
-  setText("#ad-consent-status", consent.mode === "limited" ? "제한 광고 허용 · 언제든 변경 가능" : "광고 꺼짐 · 외부 광고 요청 0");
+  const plan = createAdRuntimePlan({ config, consent, origin, surface: "resource-library", context: "general", globalPrivacyControl });
+  setText("#ad-consent-status", globalPrivacyControl
+    ? "브라우저의 개인정보 보호 신호(GPC) 감지 · 광고 요청 0"
+    : consent.mode === "limited" ? "제한 광고 허용 · 언제든 변경 가능" : "광고 꺼짐 · 외부 광고 요청 0");
   setText("#ad-readiness-status", `광고 운영 준비 ${readiness.passed}/${readiness.total} · ${readiness.liveAdsReady ? "실송출 가능" : "공급자 승인 대기"}`);
   const slot = document.querySelector("#lifepanel-ad-slot");
   if (slot) {
@@ -53,7 +56,9 @@ function render(config, consent) {
       loadGoogleAd(config, plan);
     } else {
       const message = document.createElement("p");
-      message.textContent = readiness.liveAdsReady ? "광고가 꺼져 있습니다." : "현재 광고 심사·운영 설정 전입니다. 외부 광고 요청은 없습니다.";
+      message.textContent = globalPrivacyControl
+        ? "브라우저가 개인정보 판매·공유 거부 신호를 보내 광고 요청을 차단했습니다."
+        : readiness.liveAdsReady ? "광고가 꺼져 있습니다." : "현재 광고 심사·운영 설정 전입니다. 외부 광고 요청은 없습니다.";
       slot.append(message);
       setText("#ad-runtime-status", "외부 광고 요청 0 · 핵심 기능 정상");
     }

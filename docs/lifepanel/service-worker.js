@@ -1,5 +1,5 @@
 // 새 화면 파일을 설치형 웹 앱 사용자에게도 받게 하려면, 화면 변경 때 이 판번호를 올립니다.
-const CACHE_NAME = "lifepanel-public-v18-runtime-path";
+const CACHE_NAME = "lifepanel-public-v19-isolated-ad-library";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -10,6 +10,8 @@ const APP_SHELL = [
   "./plus-ui.mjs",
   "./plus.html",
   "./plus.css",
+  "./resources.html",
+  "./resources-app.mjs",
   "./ads-ui.mjs",
   "./ads-config.js",
   "./ads-readiness.html",
