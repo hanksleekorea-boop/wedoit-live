@@ -30,6 +30,7 @@ import { initFreeContentUI } from "./free-content-ui.mjs";
 import { initWorkflowPanels } from "./workflows-ui.mjs";
 import { initAdvancedUI } from "./advanced-ui.mjs";
 import { initPlusUI } from "./plus-ui.mjs";
+import { initAdsUI } from "./ads-ui.mjs";
 
 const moves = FREE_MOVES.map((content) => Object.freeze({
   ...createMove(content),
@@ -654,7 +655,7 @@ function refreshDesktopReadiness() {
   const storageLabel = savedProfile && privacyReady ? "설정·보호 저장 준비" : "기본값 사용 중 · 저장 전에도 계속 사용할 수 있음";
   const offlineLabel = offlineReady ? "오프라인 사본 제어 중" : "오프라인 사본 준비 중";
   desktopReadiness.textContent = `${storageLabel} · ${offlineLabel} · 복구는 사용자가 고른 JSON 사본만 적용합니다.`;
-  releaseState.textContent = `LifePanel v1.0 공개판 · ${offlineLabel} · 계정·광고·외부 전송 없음`;
+  releaseState.textContent = `LifePanel v1.0 공개판 · ${offlineLabel} · 광고는 동의·운영 설정 전 외부 요청 없음`;
 }
 
 function refreshMobileReadiness() {
@@ -664,7 +665,7 @@ function refreshMobileReadiness() {
   const compact = width <= 640 ? "작은 화면 한 손 배치" : "넓은 모바일·태블릿 배치";
   const offlineLabel = "serviceWorker" in navigator && navigator.serviceWorker.controller ? "오프라인 사본 제어 중" : "오프라인 사본 준비 중";
   mobileReadiness.textContent = `${compact} · ${orientation} ${width}×${height}px · ${offlineLabel} · 자료 복구는 사용자가 고른 JSON 사본만 적용합니다.`;
-  releaseState.textContent = `LifePanel v1.0 공개판 · ${offlineLabel} · 계정·광고·외부 전송 없음`;
+  releaseState.textContent = `LifePanel v1.0 공개판 · ${offlineLabel} · 광고는 동의·운영 설정 전 외부 요청 없음`;
 }
 
 function isEditableTarget(target) {
@@ -708,6 +709,7 @@ prepareOfflineCopy();
 initWorkflowPanels();
 initAdvancedUI();
 initPlusUI();
+initAdsUI();
 freeContentUI = initFreeContentUI({
   onScenarioSelect(scenario, { initial = false } = {}) {
     selectedScenarioFirstActionId = scenario.firstActionId;
