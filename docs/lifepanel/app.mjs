@@ -29,6 +29,7 @@ import { LIFEPANEL_LAST_EXPORT_KEY } from "../lifepanel-core/lifepanel-data-cont
 import { initFreeContentUI } from "./free-content-ui.mjs";
 import { initWorkflowPanels } from "./workflows-ui.mjs";
 import { initAdvancedUI } from "./advanced-ui.mjs";
+import { initPlusUI } from "./plus-ui.mjs";
 
 const moves = FREE_MOVES.map((content) => Object.freeze({
   ...createMove(content),
@@ -706,6 +707,7 @@ renderSafetyGuidance();
 prepareOfflineCopy();
 initWorkflowPanels();
 initAdvancedUI();
+initPlusUI();
 freeContentUI = initFreeContentUI({
   onScenarioSelect(scenario, { initial = false } = {}) {
     selectedScenarioFirstActionId = scenario.firstActionId;

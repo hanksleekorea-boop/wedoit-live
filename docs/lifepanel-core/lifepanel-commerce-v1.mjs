@@ -25,7 +25,7 @@ export const LIFEPANEL_PLANS = Object.freeze([
     billingPeriod: "month",
     candidatePrice: Object.freeze({ currency: "KRW", amountMinor: 4900, includesTax: true }),
     available: false,
-    benefits: Object.freeze(["PC 주간 분석 확장", "여러 기기 동기화 후보", "복구 지원 후보"]),
+    benefits: Object.freeze(["8개 영역 포트폴리오", "고급 패널 구성", "안전한 여러 기기 자료 합치기", "7~365일 실험", "기기 안 작업 쪼개기", "가족·돌봄 계획", "전문가 제한 공유"]),
   }),
 ]);
 
