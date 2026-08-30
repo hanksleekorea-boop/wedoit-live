@@ -14,13 +14,15 @@ function setText(selector, text) {
 
 function loadGoogleAd(config, plan) {
   if (!plan.ready || document.querySelector('script[data-lifepanel-ad-provider="google-adsense"]')) return false;
+  const adQueue = (globalThis.adsbygoogle = globalThis.adsbygoogle || []);
+  adQueue.requestNonPersonalizedAds = 1;
   const script = document.createElement("script");
   script.async = true;
   script.crossOrigin = "anonymous";
   script.dataset.lifepanelAdProvider = "google-adsense";
   script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.publisherId)}`;
   script.addEventListener("load", () => {
-    try { (globalThis.adsbygoogle = globalThis.adsbygoogle || []).push({}); setText("#ad-runtime-status", "제한 광고 요청 준비됨 · LifePanel 개인 기록은 사용하지 않음"); }
+    try { adQueue.push({}); setText("#ad-runtime-status", "비개인화 광고 요청 준비됨 · LifePanel 개인 기록은 사용하지 않음"); }
     catch { setText("#ad-runtime-status", "광고를 불러오지 못했지만 LifePanel 기능은 정상입니다."); }
   });
   script.addEventListener("error", () => setText("#ad-runtime-status", "광고 공급자 연결 실패 · LifePanel 기능은 정상입니다."));
