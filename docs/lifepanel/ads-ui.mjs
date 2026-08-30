@@ -5,7 +5,7 @@ import {
   LIFEPANEL_AD_CONSENT_KEY,
   readAdConsent,
   saveAdConsent,
-} from "../lifepanel-core/lifepanel-advertising-v1.mjs";
+} from "../lifepanel-core/lifepanel-advertising-v1.mjs?v=17";
 
 function setText(selector, text) {
   const element = document.querySelector(selector);
