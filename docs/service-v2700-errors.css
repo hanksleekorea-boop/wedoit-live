@@ -1,0 +1,7 @@
+.v270-error-boundary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #d6a44f;background:#fff8e8;color:#4d3517;border-radius:15px;padding:13px 14px;margin:0 0 12px}
+.v270-error-boundary[hidden]{display:none}
+.v270-error-boundary b,.v270-error-boundary p{display:block;margin:0}
+.v270-error-boundary p{font-size:13px;line-height:1.5;margin-top:3px}
+.v270-error-boundary button{min-height:44px;border:1px solid #b77b24;border-radius:11px;background:#fff;color:#4d3517;padding:8px 12px;font-weight:800}
+@media(max-width:430px){.v270-error-boundary{grid-template-columns:1fr}.v270-error-boundary button{width:100%}}
+@media(prefers-contrast:more){.v270-error-boundary{border-width:2px;color:#000;background:#fff}.v270-error-boundary button{border-width:2px;color:#000}}

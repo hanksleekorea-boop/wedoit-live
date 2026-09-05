@@ -6,7 +6,7 @@
     <application>
         <!-- 실제 프로젝트 통합 전 참조 조각. exact-alarm 권한은 의도적으로 선언하지 않는다. -->
         <receiver
-            android:name=".nativebridge.WeDoItBootRestoreReceiver"
+            android:name=".nativebridge.HappyScanBootRestoreReceiver"
             android:directBootAware="false"
             android:enabled="true"
             android:exported="true">
@@ -16,7 +16,7 @@
         </receiver>
 
         <receiver
-            android:name=".nativebridge.WeDoItWidgetReceiver"
+            android:name=".nativebridge.HappyScanWidgetReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

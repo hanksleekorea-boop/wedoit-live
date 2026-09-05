@@ -46,7 +46,7 @@
       active?button.setAttribute("aria-current","page"):button.removeAttribute("aria-current");
     });
     const labels={today:"오늘",goals:"목표",together:"함께",insights:"통찰",me:"나"};
-    document.title=`위두잇 — ${labels[current]}`;
+    document.title=`해피스캔 — ${labels[current]}`;
     if(focus){window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});document.querySelector("main")?.focus?.({preventScroll:true})}
     window.dispatchEvent(new CustomEvent("wedoit:service-page",{detail:{page:current}}));
   }
@@ -69,8 +69,10 @@
     const hour=new Date().getHours(),greeting=hour<12?"좋은 아침이에요.":hour<18?"오늘도 반가워요.":"오늘 하루도 수고했어요.";
     const hero=document.querySelector("#pcHero"),title=document.querySelector("#todayTitle"),summary=document.querySelector("#todaySummary");
     hero?.classList.toggle("has-goals",active.length>0);
-    if(title)title.innerHTML=active.length?`${greeting}<br>기록은 한 번에.`:"오늘의 첫 루틴을<br>가볍게 골라보세요.";
-    if(summary)summary.textContent=active.length?`목표 ${active.length}개를 한곳에서 보고 오늘 ${actions.length}번 기록했어요. 지금 가능한 하나만 이어가세요.`:"30초면 충분해요. 추천 행동을 누르면 목표 생성과 오늘 기록이 한 번에 끝납니다.";
+    const titleCopy=active.length?`${greeting}<br>기록은 한 번에.`:"오늘의 첫 루틴을<br>가볍게 골라보세요.";
+    const summaryCopy=active.length?`목표 ${active.length}개를 한곳에서 보고 오늘 ${actions.length}번 기록했어요. 지금 가능한 하나만 이어가세요.`:"30초면 충분해요. 추천 행동을 누르면 목표 생성과 오늘 기록이 한 번에 끝납니다.";
+    if(title && title.innerHTML!==titleCopy)title.innerHTML=titleCopy;
+    if(summary && summary.textContent!==summaryCopy)summary.textContent=summaryCopy;
     const start=document.querySelector("#startAction"),open=document.querySelector("#openGoal");
     if(start){start.hidden=!active.length;start.textContent=active.length?"선택 목표 기록하기":"내 목표 둘러보기"}
     if(open)open.textContent=active.length?"새 목표 추가":"새 목표 직접 만들기";

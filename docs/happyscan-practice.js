@@ -1,0 +1,1 @@
+(()=>{'use strict';const page=new URL(location.href).searchParams.get('page');let tries=0;const timer=setInterval(()=>{if(window.__WEDOIT_SERVICE__?.setPage){if(['today','goals','together','insights','me'].includes(page))window.__WEDOIT_SERVICE__.setPage(page,{focus:false});clearInterval(timer);}else if(++tries>300)clearInterval(timer);},100);})();

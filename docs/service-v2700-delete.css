@@ -1,0 +1,25 @@
+.service-delete{border-color:#efcaca;background:linear-gradient(145deg,#fff 0%,#fff8f7 100%)}
+.service-delete-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.service-delete-scope{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer}
+.service-delete-scope input{width:22px;height:22px;min-width:22px;margin:1px 0 0;accent-color:#a72d2d}
+.service-delete-scope span{display:grid;gap:3px;min-width:0}
+.service-delete-scope b{overflow-wrap:anywhere}
+.service-delete-scope small{color:var(--muted)}
+.service-delete-backup{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:14px;background:#f4f7f5}
+.service-delete-backup input,.service-delete-confirm input{width:22px;height:22px;min-width:22px;margin:1px 0 0;accent-color:#a72d2d}
+.service-delete-actions,.service-delete-dialog-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.service-delete-actions button,.service-delete-dialog-actions button{min-height:44px}
+.service-delete-danger{border-color:#8f2222!important;background:#a72d2d!important;color:#fff!important}
+.service-delete-danger:disabled{opacity:.5;cursor:not-allowed}
+.service-delete-status{min-height:24px;margin:12px 0 0;font-weight:750;overflow-wrap:anywhere}
+.service-delete-receipt{margin-top:12px;padding:12px;border:1px solid #b8d5c0;border-radius:14px;background:#f1faf4}
+.service-delete-dialog{width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 24px);border:0;border-radius:20px;padding:0;box-shadow:0 24px 80px #1f2b2538}
+.service-delete-dialog::backdrop{background:#15221b99}
+.service-delete-dialog article{padding:22px}
+.service-delete-preview{display:grid;gap:7px;margin:14px 0;padding:12px;border-radius:14px;background:#f6f7f6}
+.service-delete-preview p{margin:0;overflow-wrap:anywhere}
+.service-delete-confirm{display:flex;align-items:flex-start;gap:10px;margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px}
+.service-delete-warning{color:#812222;font-weight:800}
+@media(min-width:1024px){main.app>#serviceDeleteSection{grid-column:1/-1!important;grid-row:16!important}main.app>#pcHero{grid-row:17!important}main.app>#pcKeyboardDock{grid-row:17!important}.service-delete{display:grid;grid-template-columns:minmax(260px,.55fr) minmax(680px,1.45fr);column-gap:20px;align-items:start}.service-delete-grid,.service-delete-backup,.service-delete-actions,.service-delete-status,.service-delete-receipt{grid-column:2}.service-delete-grid{margin-top:0}}
+@media(max-width:520px){.service-delete-grid{grid-template-columns:1fr}.service-delete-actions,.service-delete-dialog-actions{display:grid}.service-delete-actions button,.service-delete-dialog-actions button{width:100%;min-height:44px}.service-delete-dialog article{padding:18px}}
+@media(prefers-reduced-motion:reduce){.service-delete *{scroll-behavior:auto!important;transition:none!important}}

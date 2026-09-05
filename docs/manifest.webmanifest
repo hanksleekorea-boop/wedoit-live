@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "해피스캔 · HappyScan",
+  "short_name": "해피스캔",
+  "description": "행복을 여러 각도에서 측정하고 작은 실천과 재측정으로 나에게 맞는 변화를 찾는 개인 웰빙 도구",
+  "lang": "ko-KR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fc",
+  "theme_color": "#365ce6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

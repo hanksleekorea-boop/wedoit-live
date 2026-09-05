@@ -1,0 +1,63 @@
+/* HappyScan v27 extension layer. Feature styles are isolated in v27 modules. */
+:root {
+  --wedoit-v270-ready: 1;
+}
+
+.v270-pwa-status { grid-column: 1 / -1; margin: 10px 18px 0; padding: 12px 14px; border: 1px solid #c9ddd6; border-radius: 14px; background: #f4faf7; color: #173d32; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.v270-pwa-status[data-urgent="true"] { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 50; width: min(720px, calc(100% - 24px)); margin: 0; transform: translateX(-50%); box-shadow: 0 18px 50px rgba(16, 42, 29, .22); }
+.v270-pwa-status[hidden] { display: none; }
+.v270-pwa-status p { margin: 3px 0 0; line-height: 1.45; font-size: .9rem; }
+.v270-pwa-status[data-state="offline"], .v270-pwa-status[data-state="error"], .v270-pwa-status[data-state="blocked"] { border-color: #d7b76a; background: #fff9e9; }
+.v270-pwa-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.v270-pwa-actions button { min-height: 44px; padding: 8px 12px; white-space: nowrap; }
+@media (max-width: 620px) { .v270-pwa-status { margin: 8px 12px 0; align-items: stretch; flex-direction: column; } .v270-pwa-status[data-urgent="true"] { margin: 0; } .v270-pwa-actions { justify-content: stretch; } .v270-pwa-actions button { flex: 1 1 100%; white-space: normal; } }
+@media (prefers-reduced-motion: reduce) { .v270-pwa-status *, .v270-pwa-status *::before, .v270-pwa-status *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid #117a52 !important; outline-offset: 3px !important; }
+:where(dialog, .sheet) :where(h1, h2, h3)[tabindex="-1"]:focus { outline: 3px solid #117a52; outline-offset: 5px; }
+.app :where(button, select, summary, input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"])), .service-rail button { min-height: 44px; }
+.app :where(label:has(input[type="checkbox"]), label:has(input[type="radio"])) { min-height: 44px; display: flex; align-items: center; gap: 8px; }
+.app :where(input[type="checkbox"], input[type="radio"]) { width: 24px; height: 24px; flex: 0 0 24px; }
+.app :where(p, li, label, button, a) { overflow-wrap: anywhere; }
+.app :where(b, strong, span, em, option) { overflow-wrap: anywhere; word-break: break-word; }
+.app :where(button, select, input, textarea) { min-width: 0; max-width: 100%; }
+.app button { white-space: normal; }
+.service-repeat-controls > *, .service-repeat-controls label, .service-repeat-controls select { min-width: 0; max-width: 100%; }
+.service-repeat-controls select { width: 100%; }
+.service-rhythm-item-copy, .service-rhythm-item-copy > * { min-width: 0; max-width: 100%; white-space: normal; }
+.pc-desk-home, .pc-desk-panel, .pc-desk-list, .pc-desk-item { min-width: 0; max-width: 100%; }
+.pc-desk-item { width: 100%; }
+.pc-desk-item span { min-width: 0; max-width: 100%; flex: 1 1 auto; }
+.cards, .goal, .goal-top, .goal-copy, .goal-actions { min-width: 0; max-width: 100%; }
+.goal { width: 100%; }
+.goal-icon { min-width: 42px; max-width: 42px; overflow: hidden; flex: 0 0 42px; }
+.goal-copy :where(h3, .meta) { overflow-wrap: anywhere; word-break: break-word; }
+.service-section-kicker { color: var(--brand-ink) !important; }
+.service-orbit-card.is-quiet { opacity: 1; }
+.app :where(.meta, small, [class*="-meta"], [class*="-note"], [class*="-intro"], .service-p0-example span, .service-rail-foot span, .service-top-context span) { color: #515955; }
+html body :where(.service-rail-foot span, .service-top-context span, .service-p0-example span, .service-date-correction-empty, .service-note-mood-empty, .service-record-search-empty, #serviceRhythmCount, .service-rhythm-label span, .section-head small, .service-insight-days small, #serviceInsightUnknown p, #coachCard summary, #pcPortfolio span, .pc-desk-panel .eyebrow, #pcKeyboardDock .eyebrow) { color: #4b544f !important; }
+html body #pcHandoffLink {
+  color: var(--brand-ink) !important;
+  min-block-size: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+html body #pcKeyboardDock > .eyebrow, html body .pc-desk-panel > .eyebrow { color: #4b544f !important; }
+html body .eyebrow { opacity: 1 !important; }
+html body .nav button { color: #4b544f !important; }
+html body .nav button.on { color: var(--brand-ink) !important; }
+html body .service-rhythm-lane.is-now .service-rhythm-label { background: var(--brand-deep); color: #fff !important; }
+html body .service-rhythm-lane.is-now .service-rhythm-label :where(b, span, em) { color: #fff !important; }
+html body .service-rhythm-lane.is-now .service-rhythm-label em { background: rgba(0, 0, 0, .28); }
+@media (min-width: 1024px) {
+  .v270-pwa-status { margin: 0; }
+  .v270-pwa-status[data-urgent="true"] { bottom: 24px; }
+  main.app > * { min-width: 0; }
+  main.app > [data-service-view] { grid-row: auto !important; order: 30; }
+  main.app > #pcHero { grid-column: 1 / 9 !important; order: 10; }
+  main.app > #pcKeyboardDock { grid-column: 9 / -1 !important; order: 10; }
+  main.app > #pcDeskHome { grid-column: 1 / -1 !important; order: 20; }
+  main.app > :is(#pcGoalsSection, #pcActionSection, #pcCoachSection, #pcReviewSection, #pcStatsSection, #pcNotificationSection, #serviceIdentitySection, #cloudAccountSection, #serviceTogetherSection, #friendsNetworkSection, #serviceInsightSection, #pcLargeStats) { grid-column: 1 / -1 !important; }
+  main.app > .top, main.app > .status, main.app > .v270-pwa-status { grid-column: 1 / -1 !important; order: 0; }
+}
+@media (max-width: 360px) { .app { padding-inline: 10px; } .top { flex-wrap: wrap; } .service-top-actions { max-width: 100%; } }

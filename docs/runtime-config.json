@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "provider": "supabase",
+  "endpoint": "",
+  "publishableKey": "",
+  "googleLoginEnabled": false,
+  "appleLoginEnabled": false
+}

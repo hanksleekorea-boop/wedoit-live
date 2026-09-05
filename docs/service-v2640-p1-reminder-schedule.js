@@ -1,0 +1,22 @@
+(()=>{
+  "use strict";
+  const VERSION="v26.4.0-p1-reminder-schedule",KEY="wedoit.v264.reminder-schedule",DAYS=[0,1,2,3,4,5,6],DEFAULT=Object.freeze({enabled:false,time:"09:00",days:[1,2,3,4,5]});
+  const validTime=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value||""));
+  const normalize=value=>{const source=value&&typeof value==="object"?value:{};const days=[...new Set(Array.isArray(source.days)?source.days.filter(day=>DAYS.includes(Number(day))).map(Number):DEFAULT.days)].sort((a,b)=>a-b);return Object.freeze({enabled:source.enabled===true,time:validTime(source.time)?source.time:DEFAULT.time,days:days.length?days:DEFAULT.days.slice()})};
+  const read=()=>{try{return normalize(JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(_){return normalize({})}};
+  const write=value=>{try{localStorage.setItem(KEY,JSON.stringify(normalize(value)));return true}catch(_){return false}};
+  const copy=()=>document.documentElement.lang==="en"?{kicker:"A reminder plan that fits your week",title:"Choose reminder time and days",intro:"Save the days and time that fit your routine. This plan stays on this device and does not send repeating browser notifications by itself.",enabled:"Use this reminder plan",time:"Reminder time",days:"Repeat days",save:"Save reminder plan",off:"Reminders are off. Your time and days stay ready on this device.",saved:"Reminder plan saved on this device.",choose:"Choose at least one day while reminders are on.",notice:"A saved plan is not proof of a delivered notification. Use the one-time test separately.",names:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]}:{kicker:"내 생활에 맞는 알림 계획",title:"알림 시간과 요일 고르기",intro:"생활에 맞는 시간과 요일을 저장해 두세요. 이 계획은 이 기기에만 남고, 반복 브라우저 알림을 저절로 보내지는 않습니다.",enabled:"이 알림 계획 사용",time:"알림 시간",days:"반복 요일",save:"알림 계획 저장",off:"알림은 꺼져 있어요. 시간과 요일은 이 기기에 준비된 채 남아 있어요.",saved:"알림 계획을 이 기기에 저장했어요.",choose:"알림을 켜려면 요일을 하나 이상 골라 주세요.",notice:"계획 저장은 알림 수신 증거가 아닙니다. 한 번 시험 알림은 따로 확인해 주세요.",names:["일","월","화","수","목","금","토"]};
+  function mount(){
+    if(document.querySelector("#serviceReminderScheduleSection"))return true;
+    const anchor=document.querySelector("#serviceNotificationTestSection")||document.querySelector("#serviceRecordSearchSection"),host=document.querySelector("main.app");
+    if(!anchor||!host)return false;
+    const root=document.createElement("section");root.id="serviceReminderScheduleSection";root.className="section service-reminder-schedule";root.dataset.serviceView="me";root.setAttribute("aria-live","polite");anchor.insertAdjacentElement("afterend",root);
+    let notice="";
+    const render=()=>{const t=copy(),state=read(),summary=notice||(state.enabled?t.saved:t.off);root.innerHTML=`<header><span class="service-section-kicker">${t.kicker}</span><h2>${t.title}</h2><p>${t.intro}</p></header><form id="serviceReminderScheduleForm" class="service-reminder-form"><label class="service-reminder-enabled"><input id="serviceReminderEnabled" name="enabled" type="checkbox" ${state.enabled?"checked":""}> ${t.enabled}</label><label>${t.time}<input id="serviceReminderTime" name="time" type="time" value="${state.time}" required></label><fieldset><legend>${t.days}</legend><div class="service-reminder-days">${t.names.map((name,day)=>`<label><input name="days" type="checkbox" value="${day}" ${state.days.includes(day)?"checked":""}> <span>${name}</span></label>`).join("")}</div></fieldset><button class="primary" type="submit">${t.save}</button></form><p class="service-reminder-status" id="serviceReminderStatus" role="status">${summary}</p><p class="service-reminder-note">${t.notice}</p>`;
+      root.querySelector("#serviceReminderScheduleForm").addEventListener("submit",event=>{event.preventDefault();const form=new FormData(event.currentTarget),next=normalize({enabled:form.has("enabled"),time:form.get("time"),days:form.getAll("days").map(Number)});if(next.enabled&&!form.getAll("days").length){notice=t.choose;render();return}notice=write(next)?(next.enabled?t.saved:t.off):(document.documentElement.lang==="en"?"This browser could not save the reminder plan.":"이 브라우저에서 알림 계획을 저장하지 못했어요.");render()});
+    };
+    window.addEventListener("wedoit:languagechange",render);render();document.documentElement.dataset.p1ReminderScheduleReady="true";return true;
+  }
+  let tries=0;const timer=setInterval(()=>{tries+=1;if(mount()||tries>250)clearInterval(timer)},40);
+  window.__WEDOIT_V264_P1_REMINDER_SCHEDULE__={version:VERSION,prefKey:KEY,read,normalize};
+})();

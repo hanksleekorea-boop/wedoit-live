@@ -1,0 +1,24 @@
+(()=>{
+  "use strict";
+  const VERSION="v26.4.0-p1-quiet-hours",KEY="wedoit.v264.quiet-hours",DEFAULT=Object.freeze({enabled:false,start:"22:00",end:"07:00"});
+  const validTime=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value||""));
+  const toMinutes=value=>{if(!validTime(value))return null;const [hour,minute]=String(value).split(":").map(Number);return hour*60+minute};
+  const normalize=value=>{const source=value&&typeof value==="object"?value:{};const start=validTime(source.start)?source.start:DEFAULT.start,end=validTime(source.end)?source.end:DEFAULT.end;return Object.freeze({enabled:source.enabled===true,start,end})};
+  const withinQuietHours=(time,start,end)=>{const now=toMinutes(time),from=toMinutes(start),until=toMinutes(end);if(now===null||from===null||until===null||from===until)return false;return from<until?now>=from&&now<until:now>=from||now<until};
+  const read=()=>{try{return normalize(JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(_){return normalize({})}};
+  const write=value=>{try{localStorage.setItem(KEY,JSON.stringify(normalize(value)));return true}catch(_){return false}};
+  const copy=()=>document.documentElement.lang==="en"?{kicker:"A quiet time you control",title:"Respect quiet hours",intro:"Choose times when reminder plans stay in the app. This is saved on this device and does not change system notification settings by itself.",enabled:"Use quiet hours",start:"Quiet time starts",end:"Quiet time ends",save:"Save quiet hours",off:"Quiet hours are off.",saved:"Quiet hours saved on this device.",same:"Choose different start and end times.",notice:"This plan does not send, cancel, or prove delivery of a device notification.",summary:(start,end)=>`From ${start} to ${end}, reminder plans remain quiet in the app.`,now:(start,end)=>withinQuietHours(new Date().toTimeString().slice(0,5),start,end)?"Right now is inside your quiet time.":"Right now is outside your quiet time."}:{kicker:"내가 정하는 조용한 시간",title:"방해 금지 시간 존중",intro:"알림 계획을 앱 안에 머물게 할 시간을 고르세요. 이 설정은 이 기기에만 저장되며 시스템 알림 설정을 저절로 바꾸지 않습니다.",enabled:"방해 금지 시간 사용",start:"조용한 시간 시작",end:"조용한 시간 끝",save:"방해 금지 시간 저장",off:"방해 금지 시간이 꺼져 있어요.",saved:"방해 금지 시간을 이 기기에 저장했어요.",same:"시작과 끝 시간을 다르게 골라 주세요.",notice:"이 계획은 기기 알림을 보내거나 취소하거나, 수신을 증명하지 않습니다.",summary:(start,end)=>`${start}부터 ${end}까지 알림 계획은 앱 안에서 조용히 머물러요.`,now:(start,end)=>withinQuietHours(new Date().toTimeString().slice(0,5),start,end)?"지금은 조용한 시간 안입니다.":"지금은 조용한 시간 밖입니다."};
+  function mount(){
+    if(document.querySelector("#serviceQuietHoursSection"))return true;
+    const anchor=document.querySelector("#serviceReminderScheduleSection")||document.querySelector("#serviceNotificationTestSection"),host=document.querySelector("main.app");
+    if(!anchor||!host)return false;
+    const root=document.createElement("section");root.id="serviceQuietHoursSection";root.className="section service-quiet-hours";root.dataset.serviceView="me";root.setAttribute("aria-live","polite");anchor.insertAdjacentElement("afterend",root);
+    let notice="";
+    const render=()=>{const t=copy(),state=read(),summary=notice||(state.enabled?`${t.summary(state.start,state.end)} ${t.now(state.start,state.end)}`:t.off);root.innerHTML=`<header><span class="service-section-kicker">${t.kicker}</span><h2>${t.title}</h2><p>${t.intro}</p></header><form id="serviceQuietHoursForm" class="service-quiet-hours-form"><label class="service-quiet-hours-enabled"><input id="serviceQuietHoursEnabled" name="enabled" type="checkbox" ${state.enabled?"checked":""}> ${t.enabled}</label><label>${t.start}<input id="serviceQuietStart" name="start" type="time" value="${state.start}" required></label><label>${t.end}<input id="serviceQuietEnd" name="end" type="time" value="${state.end}" required></label><button class="primary" type="submit">${t.save}</button></form><p class="service-quiet-hours-status" id="serviceQuietHoursStatus" role="status">${summary}</p><p class="service-quiet-hours-note">${t.notice}</p>`;
+      root.querySelector("#serviceQuietHoursForm").addEventListener("submit",event=>{event.preventDefault();const form=new FormData(event.currentTarget),next=normalize({enabled:form.has("enabled"),start:form.get("start"),end:form.get("end")});if(next.enabled&&next.start===next.end){notice=t.same;render();return}notice=write(next)?(next.enabled?`${t.saved} ${t.summary(next.start,next.end)} ${t.now(next.start,next.end)}`:t.off):(document.documentElement.lang==="en"?"This browser could not save quiet hours.":"이 브라우저에서 방해 금지 시간을 저장하지 못했어요.");render()});
+    };
+    window.addEventListener("wedoit:languagechange",render);render();document.documentElement.dataset.p1QuietHoursReady="true";return true;
+  }
+  let tries=0;const timer=setInterval(()=>{tries+=1;if(mount()||tries>250)clearInterval(timer)},40);
+  window.__WEDOIT_V264_P1_QUIET_HOURS__={version:VERSION,prefKey:KEY,read,normalize,withinQuietHours};
+})();

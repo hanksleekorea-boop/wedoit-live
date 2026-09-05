@@ -35,7 +35,7 @@
     const now=currentSlot(),today=dayKey(Date.now());
     board.innerHTML=slots.map(slot=>{
       const list=goals.map((goal,index)=>({goal,slot:window.__WEDOIT_V263__?.getSlotOverride?.(goal.id)||slotForGoal(goal,index)})).filter(item=>item.slot===slot.id);
-      return`<article class="service-rhythm-lane${slot.id===now?" is-now":""}" data-rhythm-slot="${slot.id}"><div class="service-rhythm-label"><b>${slot.label}</b>${slot.id===now?"<em>지금</em>":""}<span>${slot.hint}</span></div><div class="service-rhythm-items">${list.length?list.map(({goal})=>{const progress=app.store.progress(goal.id),done=progress.value>0;return`<div class="service-rhythm-item" data-goal="${escapeHtml(goal.id)}"><div class="service-rhythm-item-copy"><b>${escapeHtml(goal.icon||"🎯")} ${escapeHtml(goal.name)}</b><span>${done?`오늘 ${progress.value}${goal.measurementContract?.unit||"회"} 기록`:`오늘 첫 기록을 기다려요`}</span></div><button class="service-rhythm-record${done?" is-done":""}" type="button" data-rhythm-record="${escapeHtml(goal.id)}" aria-label="${escapeHtml(goal.name)} 기록">${done?"+ 한 번":"기록"}</button></div>`}).join(""):`<p class="service-rhythm-empty">${goals.length?"이 시간대는 비워 두었어요.":"목표를 만들면 여기에 놓아드려요."}</p>`}</div></article>`
+      return`<article class="service-rhythm-lane${slot.id===now?" is-now":""}" data-rhythm-slot="${slot.id}"><div class="service-rhythm-label"><b>${slot.label}</b>${slot.id===now?"<em>지금</em>":""}<span>${slot.hint}</span></div><div class="service-rhythm-items">${list.length?list.map(({goal})=>{const progress=app.store.progress(goal.id),done=progress.value>0;return`<div class="service-rhythm-item" data-goal="${escapeHtml(goal.id)}"><div class="service-rhythm-item-copy"><b>${escapeHtml(goal.icon||"🎯")} ${escapeHtml(goal.name)}</b><span>${done?`오늘 ${progress.value}${escapeHtml(goal.measurementContract?.unit||"회")} 기록`:`오늘 첫 기록을 기다려요`}</span></div><button class="service-rhythm-record${done?" is-done":""}" type="button" data-rhythm-record="${escapeHtml(goal.id)}" aria-label="${escapeHtml(goal.name)} 기록">${done?"+ 한 번":"기록"}</button></div>`}).join(""):`<p class="service-rhythm-empty">${goals.length?"이 시간대는 비워 두었어요.":"목표를 만들면 여기에 놓아드려요."}</p>`}</div></article>`
     }).join("");
     board.dataset.actionCount=String(goals.length);board.dataset.today=today;
     const count=document.querySelector("#serviceRhythmCount");if(count)count.textContent=goals.length?`${goals.length}/${MAX_ACTIONS}개만 보기`:`최대 ${MAX_ACTIONS}개`;
@@ -43,7 +43,7 @@
   function renderOrbit(app,state){
     const grid=document.querySelector("#serviceOrbitGrid"),summary=document.querySelector("#serviceOrbitSummary"),unlock=document.querySelector("#serviceOrbitUnlock");if(!grid)return;
     const model=buildOrbit(state,app.store.constants.areas);
-    grid.innerHTML=model.items.map(item=>`<article class="service-orbit-card${item.count?"":" is-quiet"}" role="listitem" style="--share:${item.share}%" data-area="${escapeHtml(item.id)}"><b>${escapeHtml(item.icon)} ${escapeHtml(item.name)}</b><strong>${item.count?`${item.share}%`:"·"}</strong><span>${item.count?`${item.count}번의 관심`:`아직 기록 없음`}</span></article>`).join("");
+    grid.innerHTML=model.items.map(item=>`<div class="service-orbit-card${item.count?"":" is-quiet"}" role="listitem" style="--share:${item.share}%" data-area="${escapeHtml(item.id)}"><b>${escapeHtml(item.icon)} ${escapeHtml(item.name)}</b><strong>${item.count?`${item.share}%`:"·"}</strong><span>${item.count?`${item.count}번의 관심`:`아직 기록 없음`}</span></div>`).join("");
     if(summary)summary.textContent=model.total?`${model.activeDays}일 동안 ${model.total}번, ${model.items.filter(item=>item.count).length}곳에 관심이 머물렀어요.`:"아직 비어 있어요. 오늘의 작은 행동부터 시작해요.";
     if(unlock)unlock.textContent=model.activeDays===0?"첫 기록 뒤 관심 영역 3곳부터 보여드려요.":model.activeDays<3?`기록한 날이 ${3-model.activeDays}일 더 쌓이면 8개 영역을 모두 펼쳐드려요.`:model.activeDays<7?"8개 영역을 모두 보여드려요. 좋고 나쁨은 매기지 않습니다.":"충분한 흐름이 생겼어요. 많이 돌본 곳과 쉬어 간 곳을 함께 볼 수 있어요.";
     grid.dataset.reveal=String(model.reveal);grid.dataset.activeDays=String(model.activeDays);grid.dataset.total=String(model.total);
@@ -60,12 +60,12 @@
   }
   function firstGoal(app){return app.store.getState().goals.filter(goal=>goal.status==="active").sort((a,b)=>a.priority-b.priority)[0]||null}
   function mount(app){
-    let scheduled=false;const render=()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;const state=app.store.getState();renderRhythm(app,state);renderOrbit(app,state);renderReturn(state)})};
+    let scheduled=false;const render=()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;const state=app.store.getState();renderRhythm(app,state);renderOrbit(app,state);renderReturn(state);document.documentElement.dataset.rhythmReady="true"})};
     document.querySelector("#serviceRhythmBoard")?.addEventListener("click",event=>{const button=event.target.closest("[data-rhythm-record]");if(!button)return;app.store.record(button.dataset.rhythmRecord,1,"rhythm-v2620")});
     document.querySelector("#serviceReturnThirty")?.addEventListener("click",()=>{const goal=firstGoal(app);if(goal){app.store.startTimer(goal.id,"thirty",30);app.store.record(goal.id,1,"return-thirty-v2620")}});
     document.querySelector("#serviceReturnLower")?.addEventListener("click",()=>{const goal=firstGoal(app);if(!goal)return;const contract=goal.measurementContract||{},target=Number(contract.target);app.store.updateGoal(goal.id,{name:goal.name,area:goal.areaId,archetype:goal.archetype,metric:contract.metric,target:Number.isFinite(target)&&target>1?Math.max(1,Math.ceil(target/2)):1,period:contract.period})});
     document.querySelector("#serviceReturnRest")?.addEventListener("click",()=>{const goal=firstGoal(app);if(goal)app.store.setRest(goal.id);document.querySelector("#serviceReturnPanel")?.setAttribute("hidden","")});
-    app.store.subscribe(render);window.addEventListener("wedoit:rhythm-preferences",render);render();document.documentElement.dataset.rhythmReady="true";
+    app.store.subscribe(render);window.addEventListener("wedoit:rhythm-preferences",render);render();
   }
   let tries=0;const timer=setInterval(()=>{tries+=1;const app=window.__WEDOIT__;if(app?.ready&&app.store){clearInterval(timer);mount(app)}else if(tries>250)clearInterval(timer)},40);
   window.__WEDOIT_V262__={version:VERSION,windowDays:WINDOW_DAYS,maxActions:MAX_ACTIONS,returnDays:RETURN_DAYS,currentSlot,slotForGoal,daysSince,buildOrbit};
