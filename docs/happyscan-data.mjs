@@ -1,7 +1,7 @@
 import {ALTERNATIVES,CONTENT_REVIEW,INTERPRETATIONS} from './happyscan-stage1.mjs';
 import {EXTRA_ACTIONS} from './happyscan-stage2.mjs';
 import {EXTRA_ACTIONS as STAGE3_ACTIONS} from './happyscan-stage3.mjs';
-export const VERSION = '29.0.0';
+export const VERSION = '29.1.0';
 export const DIMENSIONS = [
   {id:'life',name:'삶의 만족',short:'만족',question:'지난 7일의 내 삶을 돌아볼 때, 전반적으로 얼마나 만족하나요?',hint:'전혀 만족하지 않음 → 매우 만족함',color:'#365ce6'},
   {id:'emotion',name:'긍정적인 순간',short:'감정',question:'지난 7일, 편안하거나 즐거운 순간을 얼마나 충분히 경험했나요?',hint:'거의 없었음 → 충분했음',color:'#bc6b20'},
@@ -52,4 +52,7 @@ export function scoreScan(answers){
   return Math.round(values.reduce((s,v)=>s+v,0)/values.length*10);
 }
 export function dayKey(timestamp){const d=new Date(timestamp);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-export function recommend(answers){const areas=DIMENSIONS.filter(d=>typeof answers?.[d.id]==='number').sort((a,b)=>answers[a.id]-answers[b.id]).slice(0,3).map(d=>d.id);return (areas.length?areas.map(area=>ACTIONS.find(a=>a.area===area)):[ACTIONS[0],ACTIONS[4],ACTIONS[3]]).filter(Boolean);}
+export function recommend(answers,pool=ACTIONS){const areas=DIMENSIONS.filter(d=>typeof answers?.[d.id]==='number').sort((a,b)=>answers[a.id]-answers[b.id]).slice(0,3).map(d=>d.id);return (areas.length?areas.map(area=>pool.find(a=>a.area===area)):['life','recovery','connection'].map(area=>pool.find(a=>a.area===area))).filter(Boolean);}
+
+// Action requirements describe the default instructions; users may choose the written alternative.
+for(const a of ACTIONS){a.requiresMovement=['move','gentle-move'].includes(a.id);a.requiresContact=['hello','listen','request','safe-company'].includes(a.id);a.minutes=parseInt(a.time,10);}

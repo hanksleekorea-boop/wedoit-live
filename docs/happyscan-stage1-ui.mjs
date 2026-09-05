@@ -1,3 +1,4 @@
+import {recordDescription} from './happyscan-maturity-ui.mjs';
 import {HELP,CONTENT_REVIEW,nextScanDate,calendarDays,pageOf,recordMetadata} from './happyscan-stage1.mjs';
 import {DIMENSIONS,ACTIONS} from './happyscan-data.mjs';
 import {backupParts} from './happyscan-store.mjs';
@@ -36,7 +37,7 @@ export function installStage1({getRecords,getStore,toast,download,hasDraft}){
     const type=$('historyType').value,ap=pageOf(records.filter(r=>type==='all'||r.type===type),allPage);allPage=ap.page;
     const labels={daily:'기분',scan:'행복 스캔',diary:'회고',action:'실천',program:'프로그램',preferences:'실천 설정',lifestyle:'생활 기록',experiment:'개인 실험',community:'함께방'};
     const describe=r=>r.type==='program'?esc(r.programId)+' · '+({started:'시작',done:'실천',skipped:'쉬기',paused:'중단',resumed:'재개',finished:'회고 제출'}[r.event])+' · '+esc(r.note):r.type==='preferences'?'실천 시간·제외 조건·앱 안 일정 설정':r.type==='daily'?r.value+'/10'+(r.note?' · '+esc(r.note):''):r.type==='scan'?r.score+'/100 · 자체 지수':r.type==='diary'?esc(r.note):r.type==='action'?esc(ACTIONS.find(a=>a.id===r.actionId)?.title??r.actionId)+' · '+{planned:'선택함',done:'실천함',skipped:'쉬기로 함'}[r.status]:r.type==='lifestyle'?({moment:'순간',time:'시간 사용',body:'수면·활동'}[r.method])+' · '+(r.estimated?'대략값':'직접값'):r.type==='experiment'?esc(ACTIONS.find(a=>a.id===r.actionId)?.title??r.actionId)+' · '+({started:'시작',day:'하루 기록',paused:'중단',resumed:'재개',finished:'회고 제출'}[r.event]):'함께방 · '+({created:'연습방 생성','action-shared':'실천 공유 연습',joined:'참여',cheered:'격려',reported:'신고',blocked:'차단',left:'나가기',ended:'종료',invited:'초대'}[r.event]??esc(r.event));
-    $('allHistory').innerHTML=ap.rows.length?ap.rows.map(r=>`<li><div><span class="small muted">${when(r.createdAt)} · ${labels[r.type]??'기록'}</span><p>${describe(r)}</p></div><button class="btn" data-remove="${r.id}" aria-label="${when(r.createdAt)} 기록 삭제">삭제</button></li>`).join(''):'<li class="muted">이 종류의 기록이 없어요. 다른 종류를 선택하거나 새 기록을 남겨보세요.</li>';
+    $('allHistory').innerHTML=ap.rows.length?ap.rows.map(r=>`<li><div><span class="small muted">${when(r.createdAt)} · ${labels[r.type]??'기록'}</span><p>${esc(recordDescription(r))}</p><p class="small">${esc(r.note??'')}</p></div><button class="btn" data-record-detail="${r.id}">내용 보기</button><button class="btn" data-remove="${r.id}" aria-label="${when(r.createdAt)} 기록 삭제">삭제</button></li>`).join(''):'<li class="muted">이 종류의 기록이 없어요. 다른 종류를 선택하거나 새 기록을 남겨보세요.</li>';
     for(const [prefix,p] of [['scans',sp],['history',ap]]){$(prefix+'Range').textContent=`${p.from}–${p.to} / 전체 ${p.total}건` ;$(prefix+'Prev').disabled=p.page===0;$(prefix+'Next').disabled=p.page===p.pages-1;}
   }
   $('historyType').onchange=()=>{allPage=0;render(lastRecords);};

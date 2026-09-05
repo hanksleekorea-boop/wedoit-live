@@ -6,6 +6,28 @@ export const MAX_BYTES=5*1024*1024;
 export const MAX_RECORDS=20000;
 const allowedTypes=new Set(['daily','scan','diary','action','program','preferences','lifestyle','experiment','community']);
 export function validateRecord(row){
+  const clean=validatePayload(row);
+  if(row.corrections===undefined)return clean;
+  if(!Array.isArray(row.corrections)||row.corrections.length>50)throw Error('정정 이력 형식을 확인해 주세요.');
+  let last=0;
+  const corrections=row.corrections.map(item=>{
+    if(!item||typeof item.reason!=='string'||!item.reason.trim()||item.reason.length>300||!Number.isSafeInteger(item.correctedAt)||item.correctedAt<clean.createdAt||item.correctedAt<last||item.correctedAt>Date.now()+86400000||item.previous?.corrections!==undefined)throw Error('정정 이력 형식을 확인해 주세요.');
+    const previous=validatePayload(item.previous);
+    if(previous.id!==clean.id||previous.type!==clean.type||previous.createdAt!==clean.createdAt)throw Error('다른 기록의 정정 이력을 합칠 수 없어요.');
+    last=item.correctedAt;return {correctedAt:item.correctedAt,reason:item.reason,previous};
+  });
+  return {...clean,corrections};
+}
+export function correctedRecord(original,fields,reason,now=Date.now()){
+  const current=validateRecord(original);
+  if(!['daily','scan','diary','action','lifestyle'].includes(current.type))throw Error('진행 사건은 정정할 수 없어요.');
+  if(typeof reason!=='string'||!reason.trim()||reason.trim().length>300)throw Error('정정 이유를 1–300자로 적어 주세요.');
+  const allowed=current.type==='scan'?['answers']:current.type==='diary'||current.type==='action'?['note']:current.type==='daily'?['value','note']:current.method==='moment'?['value','note']:current.method==='time'?['minutes','note']:['sleepMinutes','activityMinutes','note'];
+  if(Object.keys(fields).some(key=>!allowed.includes(key)))throw Error('기록 종류·날짜·진행 상태는 바꿀 수 없어요.');
+  const next=validatePayload({...current,...fields});
+  return validateRecord({...next,corrections:[...(current.corrections??[]),{correctedAt:now,reason:reason.trim(),previous:validatePayload(current)}]});
+}
+function validatePayload(row){
   if(!row||typeof row!=='object'||Array.isArray(row)||!allowedTypes.has(row.type)||typeof row.id!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(row.id)||!Number.isSafeInteger(row.createdAt)||row.createdAt<0||row.createdAt>Date.now()+86400000)throw Error('기록 형식 또는 날짜를 확인해 주세요.');
   const base={id:row.id,type:row.type,createdAt:row.createdAt};
   const text=(v,max)=>{if(typeof v!=='string'||v.length>max)throw Error('기록 내용이 너무 길거나 잘못됐어요.');return v;};
@@ -17,7 +39,8 @@ export function validateRecord(row){
   if(row.type==='program'){
     const definition=[...PROGRAMS,...FOUR_WEEK_PROGRAMS].find(p=>p.id===row.programId);
     if(!definition||typeof row.runId!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(row.runId)||!['started','done','skipped','paused','resumed','finished'].includes(row.event)||!Number.isInteger(row.day)||row.day<0||row.day>definition.days||(['done','skipped'].includes(row.event)&&row.day<1)||typeof row.baselineId!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(row.baselineId))throw Error('프로그램 기록을 확인해 주세요.');
-    return {...base,programId:row.programId,runId:row.runId,event:row.event,day:row.day,baselineId:row.baselineId,note:text(row.note??'',2000),instrument:'hs-program-v1'};
+    if(row.endScanId!==undefined&&(row.event!=='finished'||typeof row.endScanId!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(row.endScanId)))throw Error('프로그램 종료 측정을 확인해 주세요.');
+    return {...base,programId:row.programId,runId:row.runId,event:row.event,day:row.day,baselineId:row.baselineId,...(row.endScanId!==undefined?{endScanId:row.endScanId}:{}),note:text(row.note??'',2000),instrument:'hs-program-v1'};
   }
   if(row.type==='lifestyle'){
     if(!['moment','time','body'].includes(row.method)||typeof row.estimated!=='boolean')throw Error('생활 기록 형식을 확인해 주세요.');
@@ -39,7 +62,7 @@ export function validateRecord(row){
   }
   if(row.type==='daily')return {...base,value:rating(row.value),note:text(row.note??'',500),instrument:'hs-daily-v1'};
   if(row.type==='diary')return {...base,note:text(row.note,2000),instrument:'hs-diary-v1'};
-  if(row.type==='action'){if(!ACTIONS.some(a=>a.id===row.actionId)||!['planned','done','skipped'].includes(row.status))throw Error('알 수 없는 실천 기록이에요.');return {...base,actionId:row.actionId,status:row.status,instrument:'hs-action-v1'};}
+  if(row.type==='action'){if(!ACTIONS.some(a=>a.id===row.actionId)||!['planned','done','skipped'].includes(row.status))throw Error('알 수 없는 실천 기록이에요.');return {...base,actionId:row.actionId,status:row.status,...(row.note!==undefined?{note:text(row.note,2000)}:{}),instrument:'hs-action-v1'};}
   if(row.instrument!=='hs-eight-v1'||scoreScan(row.answers)===null)throw Error('지원하지 않는 검사 또는 응답이에요.');
   const answers=Object.fromEntries(DIMENSIONS.map(d=>[d.id,rating(row.answers[d.id])]));
   return {...base,answers,instrument:'hs-eight-v1',score:scoreScan(answers),period:'past-7-days'};
@@ -63,6 +86,17 @@ export function openStore(){return new Promise((resolve,reject)=>{
     resolve({
       all:()=>transaction('readonly',(s,set,tx)=>{s.getAll().onsuccess=e=>{try{set(e.target.result.map(validateRecord).sort((a,b)=>b.createdAt-a.createdAt||b.id.localeCompare(a.id)));}catch{tx.abort();}};}),
       add:async row=>{const clean=validateRecord(row);await transaction('readwrite',s=>s.add(clean));return clean;},
+      correct:(original,fields,reason)=>{
+        const expected=validateRecord(original),next=correctedRecord(expected,fields,reason);
+        return transaction('readwrite',(s,set,tx)=>{
+          s.getAll().onsuccess=e=>{
+            try{const rows=e.target.result.map(validateRecord),current=rows.find(r=>r.id===expected.id);
+              if(!current||JSON.stringify(current)!==JSON.stringify(expected)||rows.some(r=>r.baselineId===expected.id||r.endScanId===expected.id)){tx.abort();return;}
+              s.put(next);set(next);
+            }catch{tx.abort();}
+          };
+        });
+      },
       remove:id=>transaction('readwrite',s=>s.delete(id)),
       clear:()=>transaction('readwrite',s=>s.clear()),
       merge:rows=>{

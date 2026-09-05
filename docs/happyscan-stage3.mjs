@@ -1,3 +1,4 @@
+import {programRun} from './happyscan-maturity.mjs';
 // Stage 3 uses original product copy only. It does not embed licensed scale questions.
 export const STAGE3_REVIEW={reviewer:'Codex · AI 내용 점검',reviewedAt:'2026-09-04',humanReviewed:false};
 const mental='https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response';
@@ -35,7 +36,7 @@ export const FOUR_WEEK_PROGRAMS=[
 export const EXTRA_HELP=[
  ['lifestyle','생활 기록 세 가지는 무엇인가요?','순간 기록, 시간 사용 기록, 수면·활동 자기보고를 따로 저장합니다. 기억에 의한 대략값은 추정으로 표시하며 행복 점수에 더하지 않습니다.'],
  ['experiment','개인 실험은 효과를 증명하나요?','아니요. 시작·실천·종료 측정과 회고를 한 흐름으로 보존하지만 한 사람의 전후 차이만으로 원인이나 일반적 효과를 입증하지 않습니다.'],
- ['month','4주 프로그램은 어떻게 끝내나요?','최근 HS-8을 출발점으로 남기고 28일 동안 매일 실천 또는 쉬기를 직접 기록합니다. 28일 이후 같은 도구 재측정과 회고가 있어야 완료됩니다.'],
+ ['month','4주 프로그램은 어떻게 끝내나요?','최근 HS-8을 출발점으로 남기고 28일 동안 실천 또는 쉬기를 선택해 기록합니다. 빠진 날은 미기록으로 남으며, 28일 이후 같은 도구 재측정과 회고로 참여한 범위만큼 마칠 수 있습니다.'],
  ['group-privacy','함께방에서 무엇이 보이나요?','기본은 비공개입니다. 내가 명시적으로 공유한 실천 이름과 완료 시각만 방에 보이며 행복 응답·점수·기분·회고·생활 기록은 공유하지 않습니다.'],
  ['group-score','함께방에는 행복 순위가 있나요?','없습니다. 선택한 사람끼리 공유한 실천 완료 수만 볼 수 있고, 행복 점수·기분·연속 기록을 경쟁 점수로 만들지 않습니다.'],
  ['group-safety','불편한 사람이나 내용을 만나면?','차단하면 그 사람의 공유를 내 화면에서 숨깁니다. 신고는 사실 확인을 위한 별도 기록이며 자동 제재 완료로 표시하지 않습니다. 언제든 방을 나갈 수 있습니다.'],
@@ -57,34 +58,27 @@ export function lifestyleSummary(records){
 }
 
 export function experimentState(records,experimentId,now=Date.now()){
- const events=records.filter(r=>r.type==='experiment'&&r.experimentId===experimentId).sort((a,b)=>a.createdAt-b.createdAt||a.id.localeCompare(b.id));
+ const events=records.filter(r=>r.type==='experiment'&&r.experimentId===experimentId&&r.createdAt<=now).sort((a,b)=>a.createdAt-b.createdAt||a.id.localeCompare(b.id));
  const start=events.find(r=>r.event==='started');if(!start)return null;
  const state={experimentId,actionId:start.actionId,hypothesis:start.hypothesis,durationDays:start.durationDays,baselineId:start.baselineId,startedAt:start.createdAt,status:'active',days:{},elapsed:calendarDistance(start.createdAt,now)};
  let finish;
  for(const event of events){
-  if(event.baselineId!==start.baselineId||event.actionId!==start.actionId||event.durationDays!==start.durationDays)continue;
-  if(event.event==='day'&&event.day>=1&&event.day<=start.durationDays&&calendarDistance(start.createdAt,event.createdAt)>=event.day)state.days[event.day]=event.outcome;
+  if(event.createdAt<start.createdAt||event.baselineId!==start.baselineId||event.actionId!==start.actionId||event.durationDays!==start.durationDays||finish)continue;
+  if(event.event==='day'&&state.status==='active'&&event.day>=1&&event.day<=start.durationDays&&calendarDistance(start.createdAt,event.createdAt)>=event.day&&!state.days[event.day]&&['done','skipped'].includes(event.outcome))state.days[event.day]=event.outcome;
   else if(event.event==='paused')state.status='paused';else if(event.event==='resumed')state.status='active';else if(event.event==='finished')finish=event;
  }
- state.canFinish=state.elapsed>=start.durationDays&&Boolean(finish?.endScanId)&&Boolean(finish?.note?.trim())&&records.some(r=>r.type==='scan'&&r.id===finish?.endScanId&&r.createdAt>=start.createdAt+start.durationDays*86400000);
+ const baseline=records.find(r=>r.type==='scan'&&r.id===start.baselineId&&r.createdAt<=start.createdAt);
+ state.canFinish=state.elapsed>=start.durationDays&&Boolean(baseline)&&Boolean(finish?.endScanId)&&Boolean(finish?.note?.trim())&&records.some(r=>r.type==='scan'&&r.id===finish?.endScanId&&r.instrument===baseline.instrument&&r.createdAt<=finish.createdAt&&calendarDistance(start.createdAt,r.createdAt)>=start.durationDays);
  if(state.canFinish){state.status='finished';state.endScanId=finish.endScanId;state.note=finish.note;}
  return state;
 }
 
-export function fourWeekState(records,runId,now=Date.now()){
- const events=records.filter(r=>r.type==='program'&&r.runId===runId).sort((a,b)=>a.createdAt-b.createdAt||a.id.localeCompare(b.id));
- const start=events.find(r=>r.event==='started'&&FOUR_WEEK_PROGRAMS.some(p=>p.id===r.programId));if(!start)return null;
- const state={runId,programId:start.programId,baselineId:start.baselineId,startedAt:start.createdAt,status:'active',days:{},elapsed:calendarDistance(start.createdAt,now)};let finish;
- for(const event of events){if(event.programId!==start.programId||event.baselineId!==start.baselineId)continue;if(['done','skipped'].includes(event.event)&&event.day>=1&&event.day<=28&&calendarDistance(start.createdAt,event.createdAt)>=event.day)state.days[event.day]=event.event;else if(event.event==='paused')state.status='paused';else if(event.event==='resumed')state.status='active';else if(event.event==='finished')finish=event;}
- state.canFinish=state.elapsed>=28&&Array.from({length:28},(_,i)=>state.days[i+1]).every(Boolean)&&records.some(r=>r.type==='scan'&&r.createdAt>=start.createdAt+28*86400000);
- if(finish&&state.canFinish&&finish.note.trim()){state.status='finished';state.note=finish.note;}
- return state;
-}
+export function fourWeekState(records,runId,now=Date.now()){return programRun(records,runId,FOUR_WEEK_PROGRAMS,now);}
 
 export function buildLongReport(records,{baselineId,endScanId,startedAt,endedAt=Date.now()}={}){
  const baseline=records.find(r=>r.type==='scan'&&r.id===baselineId),end=records.find(r=>r.type==='scan'&&r.id===endScanId);
  if(!baseline||!end||baseline.instrument!==end.instrument||end.createdAt<baseline.createdAt)throw Error('같은 도구의 시작·종료 측정이 필요합니다.');
- const inside=records.filter(r=>r.createdAt>=startedAt&&r.createdAt<=endedAt),days=new Set(inside.filter(r=>['action','lifestyle','program','experiment'].includes(r.type)).map(r=>localDay(r.createdAt)));
+ const inside=records.filter(r=>r.createdAt>=startedAt&&r.createdAt<=endedAt),days=new Set(inside.filter(r=>r.type==='lifestyle'||r.type==='action'&&['done','skipped'].includes(r.status)||r.type==='program'&&['done','skipped'].includes(r.event)||r.type==='experiment'&&r.event==='day'&&['done','skipped'].includes(r.outcome)).map(r=>localDay(r.createdAt)));
  return {instrument:baseline.instrument,baselineId,endScanId,baselineScore:baseline.score,endScore:end.score,change:end.score-baseline.score,recordedDays:days.size,actionsDone:inside.filter(r=>r.type==='action'&&r.status==='done').length,daysSkipped:inside.filter(r=>r.type==='program'&&r.event==='skipped').length,missingIsZero:false,causalConclusion:false};
 }
 

@@ -1,3 +1,4 @@
+import {programRun} from './happyscan-maturity.mjs';
 // Original self-reflection content. No licensed scale questions are embedded.
 export const REVIEW={reviewer:'AI 문안 점검',reviewedAt:'2026-09-04',humanReviewed:false};
 const source='https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response';
@@ -41,14 +42,5 @@ export const EXTRA_HELP=[
 ].map(([id,title,text])=>({id,title,steps:[text],...REVIEW}));
 export function localDate(ts){const d=new Date(ts);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 export function dayDistance(a,b){const parts=t=>{const d=new Date(t);return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());};return Math.floor((parts(b)-parts(a))/86400000);}
-export function programState(records,runId,now=Date.now()){
- const events=records.filter(r=>r.type==='program'&&r.runId===runId).sort((a,b)=>a.createdAt-b.createdAt||a.id.localeCompare(b.id));
- const start=events.find(r=>r.event==='started'&&PROGRAMS.some(p=>p.id===r.programId));if(!start)return null;
- const state={runId,programId:start.programId,startedAt:start.createdAt,baselineId:start.baselineId,status:'active',days:{},elapsed:dayDistance(start.createdAt,now)};
- let finish;
- for(const e of events){if(e.programId!==start.programId||e.baselineId!==start.baselineId)continue;if((e.event==='done'||e.event==='skipped')&&e.day>=1&&e.day<=7&&dayDistance(start.createdAt,e.createdAt)>=e.day)state.days[e.day]=e.event;else if(e.event==='paused')state.status='paused';else if(e.event==='resumed')state.status='active';else if(e.event==='finished'&&e.note.trim()){finish=e;}}
- state.canFinish=state.elapsed>=7&&Array.from({length:7},(_,i)=>state.days[i+1]).every(Boolean)&&records.some(r=>r.type==='scan'&&r.createdAt>=start.createdAt+7*86400000);
- if(finish&&state.canFinish&&finish.createdAt>=start.createdAt+7*86400000&&records.some(r=>r.type==='scan'&&r.id===state.baselineId&&r.createdAt<=start.createdAt)){state.status='finished';state.note=finish.note;}
- return state;
-}
-export function filteredActions(actions,prefs={}){return actions.filter(a=>!(prefs.excluded??[]).includes(a.id)&&parseInt(a.time)<= (prefs.maxMinutes??15)&&!(prefs.noContact&&['hello','listen','request'].includes(a.id))&&!(prefs.noMovement&&a.id==='move'));}
+export function programState(records,runId,now=Date.now()){return programRun(records,runId,PROGRAMS,now);}
+export function filteredActions(actions,prefs={}){return actions.filter(a=>!(prefs.excluded??[]).includes(a.id)&&parseInt(a.time)<= (prefs.maxMinutes??15)&&!(prefs.noContact&&a.requiresContact)&&!(prefs.noMovement&&a.requiresMovement));}

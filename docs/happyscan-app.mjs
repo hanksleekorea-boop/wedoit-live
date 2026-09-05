@@ -1,9 +1,13 @@
+import {filteredActions} from './happyscan-stage2.mjs';
+import {installMaturityUI} from './happyscan-maturity-ui.mjs';
+import {installCorrections} from './happyscan-corrections-ui.mjs';
 import {DIMENSIONS,ACTIONS,METHODS,DISCLAIMER,scoreScan,dayKey,recommend} from './happyscan-data.mjs';
 import {openStore,newRecord,backup,parseBackup,MAX_BYTES} from './happyscan-store.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let store,records=[],dailyValue=null,answers={},question=0,toastTimer,pendingInstall,focusReturn,scanStarted=false,consent=false,diaryDraft='',stage1,stage2,stage3,contentLibrary,installContentLibrary,installStage1,installStage2,installStage3,methodsLoaded=false;
-const hasDraft=()=>Object.keys(answers).length>0||dailyValue!==null||Boolean($('dailyNote').value.trim())||Boolean(diaryDraft.trim())||Boolean(stage2?.hasDraft())||Boolean(stage3?.hasDraft());
+const hasDraft=()=>Boolean(corrections?.hasDraft())||Object.values(actionNotes).some(v=>v.trim())||Object.keys(answers).length>0||dailyValue!==null||Boolean($('dailyNote').value.trim())||Boolean(diaryDraft.trim())||Boolean(stage2?.hasDraft())||Boolean(stage3?.hasDraft());
+const actionNotes={};
 const channel='BroadcastChannel'in window?new BroadcastChannel('happyscan-refresh'):null;
 try{consent=sessionStorage.getItem('happyscan-notice-v1')==='accepted';document.documentElement.dataset.large=localStorage.getItem('happyscan-large-text')==='true'?'true':'false';}catch{}
 const rows=type=>records.filter(r=>r.type===type);
@@ -11,6 +15,7 @@ const date=ts=>new Intl.DateTimeFormat('ko-KR',{month:'short',day:'numeric',hour
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,5500);}
 function modal(title,body){focusReturn=document.activeElement;$('modalTitle').textContent=title;$('modalBody').innerHTML=body;if(!$('modal').open)$('modal').showModal();}
 function close(){ $('modal').close();focusReturn?.focus(); }
+document.querySelector('.skip').onclick=e=>{e.preventDefault();$('main').focus();};
 $('closeModal').onclick=close;
 $('modal').addEventListener('keydown',e=>{
   if(e.key!=='Tab')return;
@@ -30,31 +35,35 @@ function ratings(node,selected,onSelect){
   node.querySelectorAll('button').forEach(b=>b.onclick=()=>{onSelect(Number(b.dataset.rating));node.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
 }
 async function route(){
-  let page=location.hash.slice(1)||'home';if(!['home','measure','scan','actions','report','me','about','help','library'].includes(page))page='home';
+  const [rawPage,query='']=location.hash.slice(1).split('?'),params=new URLSearchParams(query);let page=rawPage||'home';if(!['home','measure','scan','actions','report','me','about','help','library'].includes(page))page='home';
   if(!stage1&&(!['home','scan'].includes(page)||!navigator.onLine||navigator.serviceWorker?.controller)){({installStage1}=await import('./happyscan-stage1-ui.mjs'));stage1=installStage1({getRecords:()=>records,getStore:()=>store,toast,download,hasDraft});navigator.serviceWorker?.getRegistration?.().then(reg=>reg&&stage1?.connectUpdate(reg));}
   if(!methodsLoaded&&['measure','about'].includes(page)){methods();methodsLoaded=true;}
-  if(!contentLibrary&&['home','library'].includes(page)){({installContentLibrary}=await import('./happyscan-library.mjs'));contentLibrary=installContentLibrary();contentLibrary.render();}
-  if(!stage2&&['actions','me','help'].includes(page)){({installStage2}=await import('./happyscan-stage2-ui.mjs'));stage2=installStage2({getRecords:()=>records,save,ensureConsent,modal,close,toast});stage2.render();}
+  if(!contentLibrary&&page==='library'){({installContentLibrary}=await import('./happyscan-library.mjs'));contentLibrary=installContentLibrary({modal,close});contentLibrary.render();}
+  if(!stage2&&['actions','me','help','report'].includes(page)){({installStage2}=await import('./happyscan-stage2-ui.mjs'));stage2=installStage2({getRecords:()=>records,save,ensureConsent,modal,close,toast});stage2.render();}
   if(!stage3&&['measure','actions','report','me','help'].includes(page)){({installStage3}=await import('./happyscan-stage3-ui.mjs'));stage3=installStage3({getRecords:()=>records,save,ensureConsent,modal,close,toast});stage3.render();}
+  if(page==='actions')$('actionArea').value=DIMENSIONS.some(d=>d.id===params.get('area'))?params.get('area'):'all';
   if(document.documentElement.dataset.happyscanReady==='true'){
-    if(page==='actions')renderActions();
+    if(page==='actions'){$('actionArea').value=DIMENSIONS.some(d=>d.id===params.get('area'))?params.get('area'):'all';renderActions();}
     if(page==='report')report();
     else {stage2?.render();stage3?.render();}
   }
   document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==`view-${page}`);
-  document.querySelectorAll('[data-nav]').forEach(n=>{if(n.dataset.nav===(page==='scan'?'measure':page))n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
+  document.querySelectorAll('[data-nav]').forEach(n=>{if(n.dataset.nav===(page==='scan'?'measure':page==='library'&&n.closest('.bottomnav')?'actions':['about','help'].includes(page)?'me':page))n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
   document.title=`해피스캔 — ${{home:'나의 행복',measure:'행복 측정',scan:'행복 스캔',actions:'작은 실천',library:'콘텐츠 지도',report:'변화 리포트',me:'내 공간',about:'측정과 신뢰',help:'도움말과 복원'}[page]}`;
   if(page==='scan'){scanStarted=true;renderQuestion();}
+  if(page==='library')contentLibrary?.render();maturity?.render();
+  if(page==='actions'&&params.get('program')){const id=params.get('program');const target=[...document.querySelectorAll('[data-program-start],[data-four-start]')].find(b=>(b.dataset.programStart||b.dataset.fourStart)===id);setTimeout(()=>target?.scrollIntoView({block:'center'}),0);}
   if(document.documentElement.dataset.happyscanReady==='true'){window.scrollTo({top:0,behavior:'instant'});$('main').focus({preventScroll:true});}
 }
-window.addEventListener('hashchange',()=>void route());
-window.addEventListener('offline',()=>void route());
+function routeFailed(error){$('saveWarning').textContent='이 화면을 열지 못했어요. 연결을 확인하고 다시 시도해 주세요. 기존 기록은 보존되어 있습니다.';$('saveWarning').hidden=false;}
+window.addEventListener('hashchange',()=>void route().catch(routeFailed));
+window.addEventListener('offline',()=>void route().catch(routeFailed));
 window.addEventListener('beforeunload',e=>{if(hasDraft()){e.preventDefault();e.returnValue='';}});
 function actionCard(a){return `<article class="card"><div class="action-icon" aria-hidden="true">${DIMENSIONS.find(d=>d.id===a.area).short}</div><span class="small muted">${a.time} · ${DIMENSIONS.find(d=>d.id===a.area).name}</span><h3 style="margin-top:8px">${a.title}</h3><p class="small muted">${a.steps}</p><button class="btn" data-action-detail="${a.id}">방법 알아보기 →</button></article>`;}
 function overview(){
   const last=rows('scan')[0];
   $('overview').innerHTML=`<div class="row between"><h2>나의 행복 스냅샷</h2><span class="badge neutral">${last?'자체 지수':'첫 스캔을 기다려요'}</span></div><div class="score-top"><div class="score-ring" style="--angle:${last?last.score*3.6:0}deg"><div><div class="metric">${last?last.score:'—'}<small> / 100</small></div><span class="small muted">${last?'HS-8 v1':'아직 측정 전'}</span></div></div><div><h3>${last?'지금의 모습을 이해해요':'나만의 출발점을 찾아요'}</h3><p class="small muted">${last?date(last.createdAt)+' 측정<br>지난 7일에 대한 자기보고':'첫 측정 후 8가지 단면이<br>이곳에 펼쳐집니다.'}</p><a href="${last?'#report':'#measure'}" class="small">${last?'기록 자세히 보기':'측정 방법 알아보기'} →</a></div></div><div class="dimensions">${DIMENSIONS.map(d=>`<div class="dim"><div class="dim-head"><span>${d.name}</span><b>${last?last.answers[d.id]:'—'}</b></div><div class="dim-track"><span style="width:${last?last.answers[d.id]*10:0}%;--tone:${d.color}"></span></div></div>`).join('')}</div>`;
-  $('homeActions').innerHTML=recommend(last?.answers).map(actionCard).join('');
+  $('homeActions').innerHTML=recommend(last?.answers,filteredActions(ACTIONS,records.find(r=>r.type==='preferences')??{})).map(actionCard).join('')||'<p>현재 조건에 맞는 제안이 없어요. 쉬어도 좋고 내 공간에서 조건을 바꿔도 좋아요.</p>';
   contentLibrary?.render();
 }
 function methods(){for(const available of [true,false])$(available?'availableMethods':'researchMethods').innerHTML=METHODS.filter(m=>m.available===available).map(m=>`<article class="card method"><span class="badge ${available?'':'neutral'}">${m.tag}</span><h3>${m.name}</h3><p class="small muted">${m.description}</p>${available?`<button class="btn ${m.id==='weekly'?'primary':''}" data-start="${m.id}">시작하기 →</button>`:`<a class="btn" href="${m.source}" target="_blank" rel="noopener noreferrer">원출처 보기 ↗</a>`}</article>`).join('');}
@@ -68,7 +77,7 @@ function start(kind){if(!store)return toast('안전한 저장을 준비하지 �
   else if(kind==='daily'){location.hash='home';setTimeout(()=>$('dailyRating').scrollIntoView({behavior:'smooth',block:'center'}),100);}
   else{modal('하루 돌아보기','<p class="muted">어떤 상황에서 어떤 느낌이 있었나요? 해석하거나 긍정적으로 바꿀 필요는 없어요.</p><div class="field"><label for="diaryText">내 하루의 한 장면</label><textarea id="diaryText" maxlength="2000" rows="6" placeholder="내가 기억하고 싶은 순간을 적어보세요."></textarea></div><p class="small muted">닫아도 이 창에서 다시 열면 임시 글이 남습니다. 새로고침 전에는 저장해 주세요.</p><button class="btn primary" id="saveDiary">회고 저장하기</button><button class="btn" id="discardDiary">임시 글 비우기</button>');$('diaryText').value=diaryDraft;$('diaryText').oninput=e=>diaryDraft=e.target.value;$('discardDiary').onclick=()=>{diaryDraft='';$('diaryText').value='';};$('saveDiary').onclick=async()=>{const note=$('diaryText').value.trim();if(!note)return toast('남기고 싶은 내용을 입력해 주세요.');if(await save('diary',{note},$('saveDiary'))){diaryDraft='';close();}};}
 });}
-async function refresh(){records=await store.all();overview();const page=location.hash.slice(1)||'home';if(page==='actions')renderActions();if(page==='report')report();else{stage2?.render();stage3?.render();}$('recordCount').textContent=`행복 기록 ${records.length}건 · 기존 활동 기록과 별도 보관`;$('dailySaved').textContent=rows('daily').some(r=>dayKey(r.createdAt)===dayKey(Date.now()))?'오늘의 기분 기록이 저장되어 있어요. 새 기록은 덮어쓰지 않고 추가됩니다.':'';}
+async function refresh(){records=await store.all();overview();maturity.render();const page=location.hash.slice(1).split('?')[0]||'home';if(page==='actions')renderActions();if(page==='report')report();else{stage2?.render();stage3?.render();}$('recordCount').textContent=`행복 기록 ${records.length}건 · 기존 활동 기록과 별도 보관`;$('dailySaved').textContent=rows('daily').some(r=>dayKey(r.createdAt)===dayKey(Date.now()))?'오늘의 기분 기록이 저장되어 있어요. 새 기록은 덮어쓰지 않고 추가됩니다.':'';}
 async function save(type,data,button){
   if(!store){toast('기록을 저장할 수 없는 상태예요.');return false;}if(button)button.disabled=true;
   try{const saved=await store.add(newRecord(type,data));channel?.postMessage('changed');try{await refresh();toast('이 브라우저에 저장했어요.');}catch{records=[saved,...records.filter(r=>r.id!==saved.id)];toast('기록은 저장됐지만 화면을 갱신하지 못했어요. 다시 열어 확인해 주세요.');}return true;}
@@ -87,9 +96,9 @@ $('scanSkip').onclick=()=>{delete answers[DIMENSIONS[question].id];if(question<7
 $('cancelScan').onclick=e=>{if(!Object.keys(answers).length){scanStarted=false;return;}e.preventDefault();modal('측정을 그만둘까요?','<p>완료하지 않은 응답은 아직 저장되지 않았어요. 그만두면 이 임시 응답만 지워집니다.</p><button class="btn danger" id="confirmCancel">임시 응답 지우고 돌아가기</button>');$('confirmCancel').onclick=()=>{answers={};question=0;scanStarted=false;close();location.hash='measure';};};
 function latestActions(){const map=new Map();for(const r of rows('action'))if(!map.has(r.actionId))map.set(r.actionId,r);return [...map.values()];}
 function renderActions(){
-  const filter=$('actionArea').value;$('actionLibrary').innerHTML=ACTIONS.filter(a=>filter==='all'||a.area===filter).map(actionCard).join('');
+  const filter=$('actionArea').value,query=$('actionSearch')?.value.trim().toLowerCase()||'',allowed=filteredActions(ACTIONS,records.find(r=>r.type==='preferences')??{}),visible=allowed.filter(a=>(filter==='all'||a.area===filter)&&[a.title,a.steps,a.alternative].join(' ').toLowerCase().includes(query));$('actionLibrary').innerHTML=visible.map(actionCard).join('')||'<p class="empty">조건에 맞는 실천이 없어요. 검색어나 내 공간의 제외 조건을 바꿔보세요.</p>';if($('actionSearchStatus'))$('actionSearchStatus').textContent=`${visible.length}개 실천`;
   const chosen=latestActions().filter(r=>r.status==='planned');
-  $('myActions').innerHTML=chosen.length?`<div class="grid-3">${chosen.map(r=>{const a=ACTIONS.find(a=>a.id===r.actionId);return `<article class="card"><span class="badge">내가 선택한 실천</span><h3 style="margin-top:12px">${a.title}</h3><p class="small muted">${a.steps}</p><div class="card-actions"><button class="btn primary" data-action-status="done" data-id="${a.id}">실천했어요</button><button class="btn" data-action-status="skipped" data-id="${a.id}">이번엔 쉬기</button></div></article>`;}).join('')}</div>`:'<div class="empty">아래에서 나에게 맞는 실천 하나를 골라보세요.<br>고르는 것만으로 완료 기록이 생기지는 않아요.</div>';
+  $('myActions').innerHTML=chosen.length?`<div class="grid-3">${chosen.map(r=>{const a=ACTIONS.find(a=>a.id===r.actionId);return `<article class="card"><span class="badge">내가 선택한 실천</span><h3 style="margin-top:12px">${a.title}</h3><p class="small muted">${a.steps}</p><label for="note-${a.id}">실천하며 남기는 한 줄 · 선택</label><textarea id="note-${a.id}" data-action-note="${a.id}" maxlength="2000" rows="3">${esc(actionNotes[a.id]??'')}</textarea><div class="card-actions"><button class="btn primary" data-action-status="done" data-id="${a.id}">실천했어요</button><button class="btn" data-action-status="skipped" data-id="${a.id}">이번엔 쉬기</button></div></article>`;}).join('')}</div>`:'<div class="empty">아래에서 나에게 맞는 실천 하나를 골라보세요.<br>고르는 것만으로 완료 기록이 생기지는 않아요.</div>';
 }
 function report(){
   const scans=rows('scan').slice(0,20),last=scans[0],prev=scans[1];
@@ -119,10 +128,11 @@ $('deleteAll').onclick=()=>{
   $('confirmDelete').onclick=async()=>{if(!store)return;const b=$('confirmDelete');b.disabled=true;try{await store.clear();await refresh();channel?.postMessage('changed');close();toast('이 브라우저의 행복 기록을 삭제했어요.');}catch(e){toast(e.message);b.disabled=false;}};
 };
 $('exportCsv').onclick=()=>{const cell=v=>'"'+String(v).replace(/"/g,'""')+'"';const values=[['일시','측정도구','자체 지수','기분',...DIMENSIONS.map(d=>d.name)],...records.filter(r=>['scan','daily'].includes(r.type)).map(r=>[new Date(r.createdAt).toISOString(),r.instrument,r.score??'',r.value??'',...DIMENSIONS.map(d=>r.answers?.[d.id]??'')])];download('happyscan-measurements-'+dayKey(Date.now())+'.csv','\uFEFF'+values.map(row=>row.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8');};
-$('printReport').onclick=()=>window.print();$('actionArea').onchange=renderActions;
+$('printReport').onclick=()=>window.print();$('actionArea').onchange=()=>{location.hash='actions'+($('actionArea').value==='all'?'':'?area='+$('actionArea').value);renderActions();};
 $('largeText').checked=document.documentElement.dataset.large==='true';
 $('largeText').onchange=e=>{document.documentElement.dataset.large=String(e.target.checked);try{localStorage.setItem('happyscan-large-text',String(e.target.checked));}catch{toast('화면 설정은 이번 방문에만 적용했어요.');}};
 $('persistStorage').onclick=async()=>{try{toast(await navigator.storage?.persist?.()?'브라우저가 저장 유지 요청을 허용했어요. 별도 백업도 보관해 주세요.':'저장 유지 요청을 허용하지 않았거나 지원하지 않아요. 백업을 내려받아 주세요.');}catch{toast('저장 유지 요청에 실패했어요. 백업을 내려받아 주세요.');}};
+document.addEventListener('input',e=>{if(e.target.dataset.actionNote)actionNotes[e.target.dataset.actionNote]=e.target.value;});
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.start)start(b.dataset.start);
@@ -130,8 +140,8 @@ document.addEventListener('click',e=>{
     modal(a.title,`<span class="badge">${a.time} · ${DIMENSIONS.find(d=>d.id===a.area).name}</span><p style="margin-top:16px">${a.steps}</p><div class="notice">${a.caution}</div><h3 style="margin-top:16px">다른 방법도 있어요</h3><p>${a.alternative}</p><p class="small muted">${last?'최근 이 단면의 응답: '+last.answers[a.area]+'/10. 홈 화면은 상대적으로 낮은 3단면의 예시를 보여줍니다. 원하는 실천은 직접 바꿀 수 있어요.':'첫 실천 예시입니다. 개인 결과를 분석한 맞춤 처방이 아니에요.'}</p><p class="small muted">${a.evidence}</p><p class="small muted">${a.reviewedAt} · ${a.reviewer} · 사람 검수 대기</p><a href="${a.source}" target="_blank" rel="noopener noreferrer">관련 일반 근거 보기 ↗</a><div class="card-actions"><button class="btn primary" id="planAction">이 실천 선택하기</button></div>`);
     $('planAction').onclick=()=>ensureConsent(async()=>{if(latestActions().some(r=>r.actionId===a.id&&r.status==='planned')){close();toast('이미 선택한 실천이에요.');return;}if(await save('action',{actionId:a.id,status:'planned'},$('planAction'))){close();location.hash='actions';}});
   }
-  if(b.dataset.actionStatus)ensureConsent(async()=>{if(await save('action',{actionId:b.dataset.id,status:b.dataset.actionStatus},b))toast(b.dataset.actionStatus==='done'?'실천을 남겼어요. 기분 변화는 별도로 기록해 보세요.':'쉬기로 한 선택을 기록했어요. 벌점은 없어요.');});
-  if(b.dataset.remove){const id=b.dataset.remove;modal('이 기록을 삭제할까요?','<p>선택한 기록 한 건만 삭제합니다. 삭제 후 되돌릴 수 없어요.</p><button class="btn danger" id="confirmRemove">이 기록 삭제</button>');$('confirmRemove').onclick=async()=>{if(!store)return;const b=$('confirmRemove');b.disabled=true;try{await store.remove(id);await refresh();channel?.postMessage('changed');close();toast('선택한 기록을 삭제했어요.');}catch(e){toast(e.message);b.disabled=false;}};}
+  if(b.dataset.actionStatus)ensureConsent(async()=>{if(await save('action',{actionId:b.dataset.id,status:b.dataset.actionStatus,note:$('note-'+b.dataset.id)?.value.trim()||''},b)){delete actionNotes[b.dataset.id];toast(b.dataset.actionStatus==='done'?'실천을 남겼어요. 기분 변화는 별도로 기록해 보세요.':'쉬기로 한 선택을 기록했어요. 벌점은 없어요.');}});
+  if(b.dataset.remove){const id=b.dataset.remove;if(records.some(r=>r.baselineId===id||r.endScanId===id))return toast('프로그램이나 실험에서 참조하는 측정이에요. 먼저 백업한 뒤 관련 과정과 삭제 범위를 확인해 주세요.');modal('이 기록을 삭제할까요?','<p>선택한 기록 한 건만 삭제합니다. 삭제 후 되돌릴 수 없어요.</p><button class="btn danger" id="confirmRemove">이 기록 삭제</button>');$('confirmRemove').onclick=async()=>{if(!store)return;const b=$('confirmRemove');b.disabled=true;try{await store.remove(id);await refresh();channel?.postMessage('changed');close();toast('선택한 기록을 삭제했어요.');}catch(e){toast(e.message);b.disabled=false;}};}
 });
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pendingInstall=e;$('install').textContent='앱 설치';});
 $('install').onclick=async()=>{if(pendingInstall){try{await pendingInstall.prompt();await pendingInstall.userChoice;pendingInstall=null;}catch{toast('브라우저 메뉴에서 홈 화면에 추가해 주세요.');}return;}modal('해피스캔을 앱처럼 사용하기','<p>지원하는 브라우저 메뉴에서 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택하세요. iPhone에서는 Safari의 공유 메뉴를 이용하세요.</p><p>설치 지원은 브라우저와 HTTPS 환경에 따라 다릅니다. 설치는 기기 간 동기화나 백업을 대신하지 않습니다.</p>');};
@@ -139,6 +149,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&store)ref
 if(channel)channel.onmessage=()=>store&&refresh().catch(e=>toast(e.message));
 $('todayDate').textContent=new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
 $('actionArea').insertAdjacentHTML('beforeend',DIMENSIONS.map(d=>`<option value="${d.id}">${d.name}</option>`).join(''));
-daily();await route();
+const maturity=installMaturityUI({getRecords:()=>records,modal,close,download,toast,renderActions});
+const corrections=installCorrections({getRecords:()=>records,getStore:()=>store,modal,close,toast,onChanged:async()=>{await refresh();channel?.postMessage('changed');}});
+daily();await route().catch(routeFailed);
 try{store=await openStore();await refresh();daily();document.documentElement.dataset.happyscanReady='true';}catch(error){store?.close();store=null;overview();renderActions();report();$('saveWarning').textContent=error.message+' 저장되지 않은 내용을 성공으로 표시하지 않습니다. 기존 자료를 삭제하지 말고 도움을 요청해 주세요.';$('saveWarning').hidden=false;}
 if('serviceWorker'in navigator&&['https:','http:'].includes(location.protocol))navigator.serviceWorker.register('./sw.js').then(async reg=>{stage1?.connectUpdate(reg);await navigator.serviceWorker.ready;toast('오프라인 화면 준비가 완료됐어요. 기록은 별도로 백업해 주세요.');}).catch(()=>toast('오프라인 준비에 실패했어요. 지금 화면은 계속 사용할 수 있어요.'));

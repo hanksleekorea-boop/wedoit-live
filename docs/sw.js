@@ -1,9 +1,10 @@
 "use strict";
 
-const VERSION = "v29.0.0";
-const SHELL_REVISION = "20260904-happyscan-stage3-r1";
+const VERSION = "v29.1.0";
+const SHELL_REVISION = "20260905-maturity-r3";
 const CACHE = `wedoit-shell-${VERSION}-${SHELL_REVISION}`;
 const SHELL = [
+  "./happyscan-library.mjs", "./happyscan-content-ux.css", "./happyscan-maturity.mjs", "./happyscan-maturity-ui.mjs", "./happyscan-maturity.css", "./happyscan-program-ui.mjs", "./happyscan-corrections-ui.mjs", "./development.html", "./development.js",
   "./happyscan-stage2.mjs", "./happyscan-stage2-ui.mjs", "./happyscan-stage3.mjs", "./happyscan-stage3-ui.mjs",
   "./happyscan-app.mjs", "./happyscan-data.mjs", "./happyscan-store.mjs", "./happyscan-stage1.mjs", "./happyscan-stage1-ui.mjs", "./happyscan.css", "./happyscan-layout.css", "./happyscan-mark.svg", "./practice.html", "./happyscan-practice.css", "./happyscan-practice.js",
   "./", "./index.html", "./manifest.webmanifest", "./pwa-icon-192.png", "./pwa-icon-512.png",
@@ -30,7 +31,6 @@ const SHELL = [
 const SHELL_URLS = new Set(SHELL.map((entry) => new URL(entry, self.location.href).href));
 
 async function installCompleteShell() {
-  await caches.delete(CACHE);
   try {
     const cache = await caches.open(CACHE);
     const requests = SHELL.map((url) => new Request(url, { cache: "reload" }));
