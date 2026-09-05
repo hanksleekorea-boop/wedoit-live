@@ -1,7 +1,7 @@
 import {DIMENSIONS,ACTIONS,METHODS} from './happyscan-data.mjs';
 import {HELP} from './happyscan-stage1.mjs';
-import {PROGRAMS} from './happyscan-stage2.mjs';
-import {FOUR_WEEK_PROGRAMS,EXTRA_HELP,LIFESTYLE_METHODS} from './happyscan-stage3.mjs';
+import {PROGRAMS,EXTRA_HELP as STAGE2_HELP} from './happyscan-stage2.mjs';
+import {FOUR_WEEK_PROGRAMS,EXTRA_HELP as STAGE3_HELP,LIFESTYLE_METHODS} from './happyscan-stage3.mjs';
 
 const $=id=>document.getElementById(id);
 const escape=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -23,7 +23,7 @@ const FIELD_GROUPS=[
 
 const card=(title,body,meta='')=>`<article class="guide-card"><p class="eyebrow">${escape(meta)}</p><h3>${escape(title)}</h3><p class="small muted">${escape(body)}</p></article>`;
 
-export const CONTENT_COUNTS=Object.freeze({dimensions:DIMENSIONS.length,measurements:METHODS.filter(method=>method.available).length,researchTools:METHODS.filter(method=>!method.available).length,actions:ACTIONS.length,programs:PROGRAMS.length+FOUR_WEEK_PROGRAMS.length,help:HELP.length+EXTRA_HELP.length,methodologies:METHOD_GROUPS.reduce((sum,group)=>sum+group.items.length,0),fields:FIELD_GROUPS.reduce((sum,group)=>sum+group.items.length,0)});
+export const CONTENT_COUNTS=Object.freeze({dimensions:DIMENSIONS.length,measurements:METHODS.filter(method=>method.available).length,researchTools:METHODS.filter(method=>!method.available).length,actions:ACTIONS.length,programs:PROGRAMS.length+FOUR_WEEK_PROGRAMS.length,help:HELP.length+STAGE2_HELP.length+STAGE3_HELP.length,methodologies:METHOD_GROUPS.reduce((sum,group)=>sum+group.items.length,0),fields:FIELD_GROUPS.reduce((sum,group)=>sum+group.items.length,0)});
 
 export function installContentLibrary(){
   const render=()=>{
@@ -36,7 +36,7 @@ export function installContentLibrary(){
       return `<article class="compass-card" style="--tone:${escape(dimension.color)}"><span class="compass-number">0${index+1}</span><h3>${escape(dimension.name)}</h3><p>${escape(dimension.description||'내 삶의 한 단면을 살펴봐요.')}</p><span class="small">${actions}개 실천 · <a href="#actions">실천 고르기 →</a></span></article>`;
     }).join('');
     $('contentPrograms').innerHTML=[...PROGRAMS,...FOUR_WEEK_PROGRAMS].map(program=>card(program.title,program.description||program.summary||'하루씩 차분하게 이어가는 과정이에요.',program.duration||'프로그램')).join('');
-    $('contentHelp').innerHTML=[...HELP,...EXTRA_HELP].map(help=>card(help.title,help.description||help.body||'필요할 때 찾아볼 수 있는 안내입니다.','도움말')).join('');
+    $('contentHelp').innerHTML=[...HELP,...STAGE2_HELP,...STAGE3_HELP].map(help=>card(help.title,help.description||help.body||'필요할 때 찾아볼 수 있는 안내입니다.','도움말')).join('');
     $('methodAtlas').innerHTML=METHOD_GROUPS.map(group=>`<details class="atlas-group"><summary><span>${escape(group.name)}</span><b>${group.items.length}개 접근</b></summary><p class="small muted">${escape(group.note)}</p><ol>${group.items.map(item=>`<li>${escape(item)}</li>`).join('')}</ol></details>`).join('');
     $('fieldAtlas').innerHTML=FIELD_GROUPS.map(group=>`<details class="atlas-group"><summary><span>${escape(group.name)}</span><b>${group.items.length}개 분야</b></summary><ol>${group.items.map(item=>`<li>${escape(item)}</li>`).join('')}</ol></details>`).join('');
     $('contentBridge').innerHTML=`<article class="bridge-card"><div><p class="eyebrow">CONTINUITY</p><h2>기존의 목표와 기록도 이어갈 수 있어요.</h2><p class="muted">목표·타이머·회고·함께 실천하기는 기존 공간에서 계속 사용할 수 있습니다. 두 서비스의 기록과 점수는 자동으로 합치지 않아요.</p></div><div class="bridge-actions"><a class="btn primary" href="./practice.html?page=goals">기존 목표 이어가기</a><a class="btn" href="./practice.html?page=together">함께 실천하기</a></div></article>`;
