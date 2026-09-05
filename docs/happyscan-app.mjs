@@ -2,7 +2,7 @@ import {DIMENSIONS,ACTIONS,METHODS,DISCLAIMER,scoreScan,dayKey,recommend} from '
 import {openStore,newRecord,backup,parseBackup,MAX_BYTES} from './happyscan-store.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let store,records=[],dailyValue=null,answers={},question=0,toastTimer,pendingInstall,focusReturn,scanStarted=false,consent=false,diaryDraft='',stage1,stage2,stage3,installStage1,installStage2,installStage3,methodsLoaded=false;
+let store,records=[],dailyValue=null,answers={},question=0,toastTimer,pendingInstall,focusReturn,scanStarted=false,consent=false,diaryDraft='',stage1,stage2,stage3,contentLibrary,installContentLibrary,installStage1,installStage2,installStage3,methodsLoaded=false;
 const hasDraft=()=>Object.keys(answers).length>0||dailyValue!==null||Boolean($('dailyNote').value.trim())||Boolean(diaryDraft.trim())||Boolean(stage2?.hasDraft())||Boolean(stage3?.hasDraft());
 const channel='BroadcastChannel'in window?new BroadcastChannel('happyscan-refresh'):null;
 try{consent=sessionStorage.getItem('happyscan-notice-v1')==='accepted';document.documentElement.dataset.large=localStorage.getItem('happyscan-large-text')==='true'?'true':'false';}catch{}
@@ -30,9 +30,10 @@ function ratings(node,selected,onSelect){
   node.querySelectorAll('button').forEach(b=>b.onclick=()=>{onSelect(Number(b.dataset.rating));node.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
 }
 async function route(){
-  let page=location.hash.slice(1)||'home';if(!['home','measure','scan','actions','report','me','about','help'].includes(page))page='home';
+  let page=location.hash.slice(1)||'home';if(!['home','measure','scan','actions','report','me','about','help','library'].includes(page))page='home';
   if(!stage1&&(!['home','scan'].includes(page)||!navigator.onLine||navigator.serviceWorker?.controller)){({installStage1}=await import('./happyscan-stage1-ui.mjs'));stage1=installStage1({getRecords:()=>records,getStore:()=>store,toast,download,hasDraft});navigator.serviceWorker?.getRegistration?.().then(reg=>reg&&stage1?.connectUpdate(reg));}
   if(!methodsLoaded&&['measure','about'].includes(page)){methods();methodsLoaded=true;}
+  if(!contentLibrary&&['home','library'].includes(page)){({installContentLibrary}=await import('./happyscan-library.mjs'));contentLibrary=installContentLibrary();contentLibrary.render();}
   if(!stage2&&['actions','me','help'].includes(page)){({installStage2}=await import('./happyscan-stage2-ui.mjs'));stage2=installStage2({getRecords:()=>records,save,ensureConsent,modal,close,toast});stage2.render();}
   if(!stage3&&['measure','actions','report','me','help'].includes(page)){({installStage3}=await import('./happyscan-stage3-ui.mjs'));stage3=installStage3({getRecords:()=>records,save,ensureConsent,modal,close,toast});stage3.render();}
   if(document.documentElement.dataset.happyscanReady==='true'){
@@ -42,7 +43,7 @@ async function route(){
   }
   document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==`view-${page}`);
   document.querySelectorAll('[data-nav]').forEach(n=>{if(n.dataset.nav===(page==='scan'?'measure':page))n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
-  document.title=`해피스캔 — ${{home:'나의 행복',measure:'행복 측정',scan:'행복 스캔',actions:'작은 실천',report:'변화 리포트',me:'내 공간',about:'측정과 신뢰',help:'도움말과 복원'}[page]}`;
+  document.title=`해피스캔 — ${{home:'나의 행복',measure:'행복 측정',scan:'행복 스캔',actions:'작은 실천',library:'콘텐츠 지도',report:'변화 리포트',me:'내 공간',about:'측정과 신뢰',help:'도움말과 복원'}[page]}`;
   if(page==='scan'){scanStarted=true;renderQuestion();}
   if(document.documentElement.dataset.happyscanReady==='true'){window.scrollTo({top:0,behavior:'instant'});$('main').focus({preventScroll:true});}
 }
@@ -54,6 +55,7 @@ function overview(){
   const last=rows('scan')[0];
   $('overview').innerHTML=`<div class="row between"><h2>나의 행복 스냅샷</h2><span class="badge neutral">${last?'자체 지수':'첫 스캔을 기다려요'}</span></div><div class="score-top"><div class="score-ring" style="--angle:${last?last.score*3.6:0}deg"><div><div class="metric">${last?last.score:'—'}<small> / 100</small></div><span class="small muted">${last?'HS-8 v1':'아직 측정 전'}</span></div></div><div><h3>${last?'지금의 모습을 이해해요':'나만의 출발점을 찾아요'}</h3><p class="small muted">${last?date(last.createdAt)+' 측정<br>지난 7일에 대한 자기보고':'첫 측정 후 8가지 단면이<br>이곳에 펼쳐집니다.'}</p><a href="${last?'#report':'#measure'}" class="small">${last?'기록 자세히 보기':'측정 방법 알아보기'} →</a></div></div><div class="dimensions">${DIMENSIONS.map(d=>`<div class="dim"><div class="dim-head"><span>${d.name}</span><b>${last?last.answers[d.id]:'—'}</b></div><div class="dim-track"><span style="width:${last?last.answers[d.id]*10:0}%;--tone:${d.color}"></span></div></div>`).join('')}</div>`;
   $('homeActions').innerHTML=recommend(last?.answers).map(actionCard).join('');
+  contentLibrary?.render();
 }
 function methods(){for(const available of [true,false])$(available?'availableMethods':'researchMethods').innerHTML=METHODS.filter(m=>m.available===available).map(m=>`<article class="card method"><span class="badge ${available?'':'neutral'}">${m.tag}</span><h3>${m.name}</h3><p class="small muted">${m.description}</p>${available?`<button class="btn ${m.id==='weekly'?'primary':''}" data-start="${m.id}">시작하기 →</button>`:`<a class="btn" href="${m.source}" target="_blank" rel="noopener noreferrer">원출처 보기 ↗</a>`}</article>`).join('');}
 function renderQuestion(){
