@@ -1,6 +1,8 @@
 import {DIMENSIONS} from './happyscan-data.mjs';
 import {integerInput} from './happyscan-maturity.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fieldNames={value:'응답',score:'자체 지수',note:'개인 메모',answers:'단면별 응답',minutes:'시간(분)',sleepMinutes:'수면(분)',activityMinutes:'움직임(분)',execution:'실천 입력'};
+function changeTable(before,after){const show=v=>typeof v==='object'&&v!==null?JSON.stringify(v):v??'없음';return `<div class="correction-diff"><table><caption>실제로 바뀐 항목</caption><thead><tr><th>항목</th><th>이전</th><th>정정 후</th></tr></thead><tbody>${Object.keys(fieldNames).filter(k=>JSON.stringify(before[k])!==JSON.stringify(after[k])).map(k=>`<tr><th>${fieldNames[k]}</th><td>${esc(show(before[k]))}</td><td>${esc(show(after[k]))}</td></tr>`).join('')}</tbody></table></div>`;}
 export function installCorrections({getRecords,getStore,modal,close,toast,onChanged}){
   let dirty=false;
   document.addEventListener('click',event=>{
@@ -9,7 +11,7 @@ export function installCorrections({getRecords,getStore,modal,close,toast,onChan
       const row=getRecords().find(r=>r.id===detail.dataset.recordDetail);if(!row)return;
       const supported=['daily','scan','diary','action','lifestyle'].includes(row.type);
       $('modalBody').querySelector('.small:last-child')?.remove();
-      $('modalBody').insertAdjacentHTML('beforeend',`<p class="small">정정은 원래 날짜를 유지하고 이전 값·이유를 JSON 백업에 보존합니다. CSV는 현재 값이며 원자료 복원용이 아닙니다.</p>${(row.corrections??[]).map((c,i)=>`<details><summary>정정 ${i+1} · ${new Date(c.correctedAt).toLocaleString('ko-KR')}</summary><p>${esc(c.reason)}</p><pre class="record-snapshot">${esc(JSON.stringify(c.previous,null,2))}</pre></details>`).join('')}${supported?`<button class="btn" data-correct-record="${esc(row.id)}">이력 남기고 정정</button>`:'<p>프로그램·실험 진행 사건은 직접 수정하지 않습니다.</p>'}`);
+      $('modalBody').insertAdjacentHTML('beforeend',`<p class="small">정정은 원래 날짜를 유지하고 이전 값·이유를 JSON 백업에 보존합니다. CSV는 현재 값이며 원자료 복원용이 아닙니다.</p>${row.execution?`<p>실천 시간: ${row.execution.minutes===null?'미입력':row.execution.minutes+'분'} · 적합성: ${{'not-rated':'평가 안 함',comfortable:'부담 없이 맞음',adjust:'조정 희망','not-for-me':'지금은 맞지 않음'}[row.execution.fit]} · 직접 입력한 자기보고</p>`:''}${(row.corrections??[]).map((c,i)=>`<details><summary>정정 ${i+1} · ${new Date(c.correctedAt).toLocaleString('ko-KR')}</summary><p>${esc(c.reason)}</p>${changeTable(c.previous,row.corrections[i+1]?.previous??row)}<details><summary>원본 형식으로 보기</summary><pre class="record-snapshot">${esc(JSON.stringify(c.previous,null,2))}</pre></details></details>`).join('')}${supported?`<button class="btn" data-correct-record="${esc(row.id)}">이력 남기고 정정</button>`:'<p>프로그램·실험 진행 사건은 직접 수정하지 않습니다.</p>'}`);
     }
     const edit=event.target.closest('[data-correct-record]');if(!edit)return;
     const row=getRecords().find(r=>r.id===edit.dataset.correctRecord);if(!row)return;

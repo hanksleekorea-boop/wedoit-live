@@ -1,5 +1,5 @@
 {
-  "version": "29.1.0",
+  "version": "29.2.0",
   "brand": "해피스캔",
   "brandEnglish": "HappyScan",
   "product": "personal-happiness-measurement-and-improvement",
@@ -18,20 +18,24 @@
     "sourcePivotImplemented": true,
     "automatedTests": {
       "status": "verified",
-      "evidence": "60_OUTPUTS/happyscan-maturity",
-      "sourceFingerprint": "51e033bfd9b162eb281dd7d6b5f423ec7790d11723edf42ad4a34deb7c213c5a",
-      "total": 412,
+      "evidence": "60_OUTPUTS/happyscan-292",
+      "sourceFingerprint": "45fe6b3cf3fb60ca441187aced2f22269c9dc52f2df926edcaf1a73abbf7dc4b",
+      "total": 549,
       "failed": 0,
-      "breakdown": { "unit": 269, "static": 24, "browser": 54, "accessibility": 65 },
-      "browserBreakdown": { "journeysAndUpdate": 37, "resilience": 17 },
+      "breakdown": {
+        "unit": 372,
+        "static": 31,
+        "browser": 81,
+        "accessibility": 65
+      },
       "scope": "automated-checks-only-not-overall-completion",
       "performance": {
         "runs": 5,
-        "lcpMedianMs": 5566.537,
+        "lcpMedianMs": 3976.613,
         "clsMedian": 0.0006815779351317356,
-        "tbtMedianMs": 244.04099999999744,
+        "tbtMedianMs": 1650.69,
         "targetsPassed": false,
-        "conditions": "local mobile emulation; CPU 4x and network throttling; host CPU load observed at 100%; not field or Android evidence"
+        "conditions": "local mobile emulation; CPU 4x and network throttling; not field or Android evidence"
       }
     },
     "actualAndroid": false,
@@ -49,5 +53,14 @@
     "diagnosis",
     "guaranteed-improvement",
     "B-drive"
-  ]
+  ],
+  "backupFormatsRead": [
+    1,
+    2
+  ],
+  "drafts": {
+    "database": "happyscan-drafts-v1",
+    "completedRecord": false,
+    "includedInBackup": false
+  }
 }

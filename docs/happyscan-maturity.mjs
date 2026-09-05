@@ -44,11 +44,13 @@ export function dayPlan(program,day,actions) {
   const focus=['부담 없이 시작','내 조건 확인','다른 방법 시도','편한 방법 반복','조금 조정','쉬거나 이어가기','한 주 돌아보기'][phase];
   const action=actions.find(a=>a.id===program.actions[(phase+week)%program.actions.length]);
   if(!action)throw Error('연결된 실천을 찾을 수 없어요.');
-  return {day,week:week+1,focus,action,reflection:phase===6?'이번 주 나에게 맞았던 점과 바꾸고 싶은 점은 무엇인가요?':'지금의 조건에 이 방법이 얼마나 편했나요? 변화가 없어도 괜찮아요.'};
+  const prompt=PROGRAM_REFLECTIONS[program.area]?.[phase]??'지금의 조건과 나에게 맞았던 점을 적어보세요.';
+  return {day,week:week+1,focus,action,reflectionTemplateId:program.area+':'+phase,reflection:`${prompt} 오늘의 ‘${action.title}’을 떠올려 보세요. ${WEEK_INTENT[week]??WEEK_INTENT[0]} 변화가 없어도 괜찮아요.`};
 }
 export function csvText(records,{includeNotes=false}={}) {
   const cell=value=>{let s=String(value??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
-  const fields=['id','type','createdAt','instrument','value','score','sleepMinutes','activityMinutes','minutes','context','category','estimated','actionId','status','programId','runId','baselineId','endScanId','event','day','experimentId','durationDays','outcome','groupId','visibility','maxMinutes','noContact','noMovement','reminders','excluded','answers','correctionCount',...(includeNotes?['note','hypothesis','correctionReasons']:[])];
+  const fields=['id','type','createdAt','instrument','value','score','sleepMinutes','activityMinutes','minutes','context','category','estimated','actionId','status','execution','programId','runId','baselineId','endScanId','event','day','experimentId','durationDays','outcome','groupId','visibility','maxMinutes','noContact','noMovement','reminders','excluded','answers','correctionCount',...(includeNotes?['note','hypothesis','correctionReasons']:[])];
   const lines=[fields,...records.map(r=>fields.map(k=>k==='createdAt'?new Date(r.createdAt).toISOString():k==='correctionCount'?(r.corrections?.length??0):k==='correctionReasons'?(r.corrections??[]).map(c=>c.reason).join(' / '):typeof r[k]==='object'&&r[k]!==null?JSON.stringify(r[k]):r[k]??''))];
   return '\uFEFF'+lines.map(row=>row.map(cell).join(',')).join('\r\n');
 }
+import {PROGRAM_REFLECTIONS,WEEK_INTENT} from './happyscan-program-reflections.mjs';

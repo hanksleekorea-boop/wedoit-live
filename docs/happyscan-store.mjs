@@ -1,6 +1,7 @@
 import {DIMENSIONS, ACTIONS, scoreScan} from './happyscan-data.mjs';
 import {PROGRAMS} from './happyscan-stage2.mjs';
 import {FOUR_WEEK_PROGRAMS,CONTEXTS,TIME_CATEGORIES} from './happyscan-stage3.mjs';
+import {validateExecution} from './happyscan-practice-guide.mjs';
 export const DB_NAME='happyscan-v1';
 export const MAX_BYTES=5*1024*1024;
 export const MAX_RECORDS=20000;
@@ -62,7 +63,7 @@ function validatePayload(row){
   }
   if(row.type==='daily')return {...base,value:rating(row.value),note:text(row.note??'',500),instrument:'hs-daily-v1'};
   if(row.type==='diary')return {...base,note:text(row.note,2000),instrument:'hs-diary-v1'};
-  if(row.type==='action'){if(!ACTIONS.some(a=>a.id===row.actionId)||!['planned','done','skipped'].includes(row.status))throw Error('알 수 없는 실천 기록이에요.');return {...base,actionId:row.actionId,status:row.status,...(row.note!==undefined?{note:text(row.note,2000)}:{}),instrument:'hs-action-v1'};}
+  if(row.type==='action'){if(!ACTIONS.some(a=>a.id===row.actionId)||!['planned','done','skipped'].includes(row.status))throw Error('알 수 없는 실천 기록이에요.');return {...base,actionId:row.actionId,status:row.status,...(row.note!==undefined?{note:text(row.note,2000)}:{}),...(row.execution!==undefined?{execution:validateExecution(row.execution,row.actionId)}:{}),instrument:'hs-action-v1'};}
   if(row.instrument!=='hs-eight-v1'||scoreScan(row.answers)===null)throw Error('지원하지 않는 검사 또는 응답이에요.');
   const answers=Object.fromEntries(DIMENSIONS.map(d=>[d.id,rating(row.answers[d.id])]));
   return {...base,answers,instrument:'hs-eight-v1',score:scoreScan(answers),period:'past-7-days'};
@@ -70,7 +71,7 @@ function validatePayload(row){
 export function parseBackup(raw){
   if(typeof raw!=='string'||new TextEncoder().encode(raw).length>MAX_BYTES)throw Error('5MB 이하의 해피스캔 백업 파일을 선택해 주세요.');
   const data=JSON.parse(raw);
-  if(!data||data.format!=='happyscan-backup'||data.schemaVersion!==1||!Array.isArray(data.records)||data.records.length>20000)throw Error('해피스캔 백업 v1 파일이 아니에요. 이전 활동 백업은 실천 도구에서 복원해 주세요.');
+  if(!data||data.format!=='happyscan-backup'||![1,2].includes(data.schemaVersion)||(data.schemaVersion===2&&data.minimumReaderVersion!=='29.2.0')||!Array.isArray(data.records)||data.records.length>20000)throw Error('지원하는 해피스캔 백업 파일이 아니에요. 이전 활동 백업은 실천 도구에서 복원해 주세요.');
   const rows=data.records.map(validateRecord),ids=new Set();
   for(const r of rows){if(ids.has(r.id))throw Error('파일 안에 중복 ID가 있어요.');ids.add(r.id);}
   return rows;
@@ -121,12 +122,12 @@ export function openStore(){return new Promise((resolve,reject)=>{
   };
 });}
 export function newRecord(type,fields){return validateRecord({id:crypto.randomUUID(),type,createdAt:Date.now(),...fields});}
-const envelope=records=>JSON.stringify({format:'happyscan-backup',schemaVersion:1,exportedAt:new Date().toISOString(),records});
+const envelope=records=>{const extended=records.some(r=>r.execution||r.corrections?.length);return JSON.stringify({format:'happyscan-backup',schemaVersion:extended?2:1,...(extended?{minimumReaderVersion:'29.2.0'}:{}),exportedAt:new Date().toISOString(),records});};
 export function backup(records){const clean=records.map(validateRecord);const raw=envelope(clean);if(clean.length>MAX_RECORDS||new TextEncoder().encode(raw).length>MAX_BYTES)throw Error('한 파일 한도(5MB·20,000건)를 넘었어요. 나눈 백업 받기를 이용해 주세요.');return raw;}
 export function backupParts(records){
-  const parts=[],encoder=new TextEncoder();let current=[],bytes=encoder.encode(envelope([])).length;
+  const parts=[],encoder=new TextEncoder();let current=[],bytes=encoder.encode(envelope([])).length+128;
   for(const value of records){const row=validateRecord(value),size=encoder.encode(JSON.stringify(row)).length+1;
-    if(current.length&&(current.length===MAX_RECORDS||bytes+size>MAX_BYTES)){parts.push(backup(current));current=[];bytes=encoder.encode(envelope([])).length;}
+    if(current.length&&(current.length===MAX_RECORDS||bytes+size>MAX_BYTES)){parts.push(backup(current));current=[];bytes=encoder.encode(envelope([])).length+128;}
     current.push(row);bytes+=size;
   }
   if(current.length||!parts.length)parts.push(backup(current));return parts;

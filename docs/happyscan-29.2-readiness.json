@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-09-05T13:14:45.119Z",
+  "product": "HappyScan 29.2.0 local-first web/PWA candidate",
+  "sourceFingerprint": "6d07d2caef7eead0f77bcab42bc2d8b4c002604d466711f7ed2d63c3177cd3bf",
+  "kind": "automated-evidence-summary-not-overall-completion",
+  "checks": {
+    "unit": {
+      "total": 372,
+      "passed": 372,
+      "failed": 0,
+      "files": [
+        "happyscan_stage1.test.mjs",
+        "happyscan_stage2.test.mjs",
+        "happyscan_stage3.test.mjs",
+        "happyscan_stage1_gate.test.mjs",
+        "happyscan_v29_contract.test.mjs",
+        "happyscan_content_ux.test.mjs",
+        "happyscan_maturity.test.mjs",
+        "happyscan_292.test.mjs"
+      ]
+    },
+    "static": {
+      "passed": 31,
+      "failed": 0,
+      "checks": [
+        {
+          "name": "offline shell paths exist",
+          "pass": true
+        },
+        {
+          "name": "every transitively imported app module is in the offline shell",
+          "pass": true,
+          "detail": "happyscan-app.mjs, happyscan-stage2.mjs, happyscan-maturity.mjs, happyscan-program-reflections.mjs, happyscan-maturity-ui.mjs, happyscan-data.mjs, happyscan-stage1.mjs, happyscan-stage3.mjs, happyscan-corrections-ui.mjs, happyscan-drafts-ui.mjs, happyscan-drafts.mjs, happyscan-exports-ui.mjs, happyscan-exports.mjs, happyscan-practice-input.mjs, happyscan-practice-guide.mjs, happyscan-store.mjs, happyscan-stage1-ui.mjs, happyscan-library.mjs, happyscan-stage2-ui.mjs, happyscan-program-ui.mjs, happyscan-stage3-ui.mjs"
+        },
+        {
+          "name": "shell URLs are unique",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-app.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage2.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-maturity.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-program-reflections.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-maturity-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-data.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage1.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage3.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-corrections-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-drafts-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-drafts.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-exports-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-exports.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-practice-input.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-practice-guide.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-store.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage1-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-library.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage2-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-program-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-stage3-ui.mjs",
+          "pass": true
+        },
+        {
+          "name": "syntax happyscan-practice.js",
+          "pass": true
+        },
+        {
+          "name": "syntax development.js",
+          "pass": true
+        },
+        {
+          "name": "syntax sw.js",
+          "pass": true
+        },
+        {
+          "name": "no known private-key or credential patterns in publishable files",
+          "pass": true
+        },
+        {
+          "name": "not-yet-configured Google is not advertised as enabled",
+          "pass": true
+        },
+        {
+          "name": "unit suites all pass",
+          "pass": true,
+          "detail": {
+            "total": 372,
+            "passed": 372,
+            "failed": 0
+          }
+        },
+        {
+          "name": "product stayed unchanged during verification",
+          "pass": true
+        }
+      ]
+    },
+    "browserNew": {
+      "passed": 27,
+      "failed": 0
+    },
+    "browserLegacy": {
+      "passed": 37,
+      "failed": 0
+    },
+    "resilience": {
+      "passed": 17,
+      "failed": 0
+    },
+    "accessibility": {
+      "passed": 65,
+      "failed": 0
+    },
+    "lighthouse": {
+      "runs": 5,
+      "sourceFingerprint": "45fe6b3cf3fb60ca441187aced2f22269c9dc52f2df926edcaf1a73abbf7dc4b",
+      "lcpMedianMs": 3976.613,
+      "clsMedian": 0.0006815779351317356,
+      "tbtMedianMs": 1650.69,
+      "scores": [
+        {
+          "performance": 82,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        {
+          "performance": 69,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        {
+          "performance": 42,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        {
+          "performance": 53,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        {
+          "performance": 41,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        }
+      ],
+      "targets": {
+        "lcp": false,
+        "cls": true,
+        "tbt": false
+      }
+    }
+  },
+  "actualAndroid": false,
+  "actualUsers": 0,
+  "realOperator": false,
+  "publicRelease": true,
+  "overallStatus": "공개 파일럿 — 자동 검증 완료, 전체 상용화는 외부 조건 대기",
+  "limitations": [
+    "자동 검사와 합성 자료는 실제 Android 또는 실제 이용자 증거가 아니다.",
+    "성능은 로컬 모바일 에뮬레이션이며 LCP·TBT 목표 미달이다.",
+    "Google 로그인/서버 동기화/비공개 함께방/광고는 운영 설정 전 비활성이다."
+  ]
+}
